@@ -1,2 +1,0 @@
-# anizm-clone
-Anizm Clone

@@ -1,5 +1,5 @@
-import Header from "@/src/components/Header";
-import FavoriteButton from "@/src/components/FavoriteButton";
+import Header from "@/components/Header";
+import FavoriteButton from "@/components/FavoriteButton";
 
 async function getDetails(aid:string){
   const r = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/anidb/anime/${aid}`, { next:{ revalidate:600 }});
