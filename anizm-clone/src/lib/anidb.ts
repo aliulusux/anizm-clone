@@ -1,5 +1,37 @@
 import xml2js from "xml2js";
 
+export async function searchAnimeByTitle(query: string) {
+  const url = `https://api.anidb.net:9001/httpapi?request=anime&client=${process.env.ANIDB_CLIENT}&clientver=${process.env.ANIDB_CLIENTVER}&protover=${process.env.ANIDB_PROTO}&search=${encodeURIComponent(query)}`;
+
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`AniDB returned ${res.status}`);
+
+    const xml = await res.text();
+    const parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
+    const parsed = await parser.parseStringPromise(xml);
+
+    const list = parsed?.anime || parsed?.animes?.anime || [];
+
+    const items = Array.isArray(list)
+      ? list.map((a) => ({
+          aid: a.aid || Math.random().toString(36).slice(2),
+          title:
+            typeof a.title === "string"
+              ? a.title
+              : Array.isArray(a.title)
+              ? a.title[0]
+              : a.title?._ || "Unknown Anime",
+        }))
+      : [];
+
+    return items;
+  } catch (err) {
+    console.error("Failed to search AniDB:", err);
+    return [];
+  }
+}
+
 export async function getHotAnime() {
   const url = `https://api.anidb.net:9001/httpapi?request=hotanime&client=${process.env.ANIDB_CLIENT}&clientver=${process.env.ANIDB_CLIENTVER}&protover=${process.env.ANIDB_PROTO}`;
 

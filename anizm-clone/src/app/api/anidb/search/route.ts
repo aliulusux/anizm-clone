@@ -1,21 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHotAnime } from "@/lib/anidb"; // adjust this import if needed
+import { searchAnimeByTitle } from "@/lib/anidb";
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
-  const q = searchParams.get("q")?.toLowerCase() || "";
+  const q = searchParams.get("q")?.trim();
+
+  if (!q) {
+    return NextResponse.json({ items: [] });
+  }
 
   try {
-    const all = await getHotAnime(); // likely returns { items: [...] }
-    const items = Array.isArray(all) ? all : all.items || [];
-
-    const filtered = items.filter(
-      (item: any) =>
-        item.title &&
-        item.title.toLowerCase().includes(q)
-    );
-
-    return NextResponse.json({ items: filtered });
+    const results = await searchAnimeByTitle(q);
+    return NextResponse.json({ items: results });
   } catch (err) {
     console.error("Search API error:", err);
     return NextResponse.json(
