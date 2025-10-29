@@ -103,8 +103,6 @@ export default async function AnimePage({ params }: { params: { aid: string } })
     anime.images?.webp?.image_url ||
     "";
 
-  const related = await getRelatedAnimeWithCovers(Number(params.aid));
-
   return (
     
     <div style={{ position: "relative", minHeight: "100vh" }}>
