@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import AuthGate from "@/components/AuthGate";
+import { getRelatedAnimeWithCovers } from "@/lib/jikan";
 
 export const dynamic = "force-dynamic";
 

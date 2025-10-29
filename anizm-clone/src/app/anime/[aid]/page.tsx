@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Header from "@/components/Header";
+import { getRelatedAnimeWithCovers } from "@/lib/jikan";
 
 /* --------------------------- helpers / fetchers --------------------------- */
 
@@ -101,6 +102,8 @@ export default async function AnimePage({ params }: { params: { aid: string } })
     anime.images?.webp?.large_image_url ||
     anime.images?.webp?.image_url ||
     "";
+
+  const related = await getRelatedAnimeWithCovers(Number(params.aid));
 
   return (
     
