@@ -34,9 +34,13 @@ async function AnimeGrid() {
 }
 
 export default async function Home() {
+  const hot = await fetchHot();
   return (
     <div>
-      <Header />
+      <Suspense fallback={<div style={{ padding: 20 }}>Yükleniyor...</div>}>
+        <Header />
+      </Suspense>
+
       <main className="container">
         <section className="glass" style={{ padding: "18px", marginBottom: 18 }}>
           <AuthGate />
@@ -44,9 +48,11 @@ export default async function Home() {
 
         <section className="glass" style={{ padding: "18px" }}>
           <h2 style={{ margin: "6px 0 12px 0" }}>Bu Sezon Popüler</h2>
-          <Suspense fallback={<LoadingGrid />}>
-            <AnimeGrid />
-          </Suspense>
+          <div className="grid">
+            {hot.map((a: any) => (
+              <AnimeCard key={a.aid} aid={a.aid} title={a.title} />
+            ))}
+          </div>
         </section>
       </main>
     </div>
