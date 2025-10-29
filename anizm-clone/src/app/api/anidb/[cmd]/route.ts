@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { getHotAnime } from "@/lib/anidb";
 
 export async function GET() {
-  const data = await getHotAnime();
-  return NextResponse.json(data, {
-    headers: {
-      "Cache-Control": "s-maxage=300, stale-while-revalidate=600",
-    },
-  });
+  try {
+    const items = await getHotAnime();
+    return NextResponse.json({ items });
+  } catch (err) {
+    console.error("Failed to fetch trending anime:", err);
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
 }

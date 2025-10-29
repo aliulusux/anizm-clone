@@ -5,18 +5,13 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get("q")?.trim();
 
-  if (!q) {
-    return NextResponse.json({ items: [] });
-  }
+  if (!q) return NextResponse.json({ items: [] });
 
   try {
     const results = await searchAnimeByTitle(q);
     return NextResponse.json({ items: results });
   } catch (err) {
     console.error("Search API error:", err);
-    return NextResponse.json(
-      { error: (err as Error).message },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Failed to fetch search results" }, { status: 500 });
   }
 }

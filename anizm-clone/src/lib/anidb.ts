@@ -1,103 +1,64 @@
-import xml2js from "xml2js";
+// Replaced with Jikan API (MyAnimeList)
+const BASE = "https://api.jikan.moe/v4";
 
-export async function searchAnimeByTitle(query: string) {
-  const url = `https://api.anidb.net:9001/httpapi?request=anime&client=${process.env.ANIDB_CLIENT}&clientver=${process.env.ANIDB_CLIENTVER}&protover=${process.env.ANIDB_PROTO}&search=${encodeURIComponent(query)}`;
-
+export async function getHotAnime() {
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`AniDB returned ${res.status}`);
+    const res = await fetch(`${BASE}/top/anime?filter=bypopularity&limit=12`);
+    if (!res.ok) throw new Error(`Jikan returned ${res.status}`);
+    const data = await res.json();
 
-    const xml = await res.text();
-    const parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
-    const parsed = await parser.parseStringPromise(xml);
-
-    const list = parsed?.anime || parsed?.animes?.anime || [];
-
-    const items = Array.isArray(list)
-      ? list.map((a) => ({
-          aid: a.aid || Math.random().toString(36).slice(2),
-          title:
-            typeof a.title === "string"
-              ? a.title
-              : Array.isArray(a.title)
-              ? a.title[0]
-              : a.title?._ || "Unknown Anime",
-        }))
-      : [];
-
-    return items;
+    return data.data.map((a: any) => ({
+      aid: a.mal_id,
+      title: a.title,
+      image: a.images?.jpg?.large_image_url || a.images?.jpg?.image_url,
+      episodes: a.episodes,
+      score: a.score,
+    }));
   } catch (err) {
-    console.error("Failed to search AniDB:", err);
+    console.error("Failed to fetch top anime from Jikan:", err);
     return [];
   }
 }
 
-export async function getHotAnime() {
-  const url = `https://api.anidb.net:9001/httpapi?request=hotanime&client=${process.env.ANIDB_CLIENT}&clientver=${process.env.ANIDB_CLIENTVER}&protover=${process.env.ANIDB_PROTO}`;
-
+export async function searchAnimeByTitle(query: string) {
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`AniDB returned ${res.status}`);
+    const res = await fetch(`${BASE}/anime?q=${encodeURIComponent(query)}&limit=10`);
+    if (!res.ok) throw new Error(`Jikan returned ${res.status}`);
+    const data = await res.json();
 
-    const xml = await res.text();
-    const parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
-    const parsed = await parser.parseStringPromise(xml);
-
-    const animeList = parsed?.animelist?.anime || [];
-
-    const items = Array.isArray(animeList)
-      ? animeList.map((a) => ({
-          aid: a.id || a.aid || Math.random().toString(36).slice(2),
-          title:
-            typeof a.title === "string"
-              ? a.title
-              : Array.isArray(a.title)
-              ? a.title[0]
-              : a.title?._ || "Unknown Anime",
-        }))
-      : [];
-
-    return { items };
-  } catch (err: any) {
-    console.error("Failed to fetch AniDB hotanime:", err);
-    return { items: [] };
+    return data.data.map((a: any) => ({
+      aid: a.mal_id,
+      title: a.title,
+      image: a.images?.jpg?.image_url,
+      episodes: a.episodes,
+      score: a.score,
+    }));
+  } catch (err) {
+    console.error("Failed to search anime:", err);
+    return [];
   }
 }
+
 export async function getAnimeById(aid: string) {
-  const url = `https://api.anidb.net:9001/httpapi?request=anime&client=${process.env.ANIDB_CLIENT}&clientver=${process.env.ANIDB_CLIENTVER}&protover=${process.env.ANIDB_PROTO}&aid=${aid}`;
-
   try {
-    const res = await fetch(url, { cache: "no-store" });
-    if (!res.ok) throw new Error(`AniDB returned ${res.status}`);
-
-    const xml = await res.text();
-    const parser = new (await import("xml2js")).Parser({ explicitArray: false, mergeAttrs: true });
-    const parsed = await parser.parseStringPromise(xml);
-
-    const anime = parsed?.anime;
-    if (!anime) return null;
-
-    const title =
-      typeof anime.title === "string"
-        ? anime.title
-        : Array.isArray(anime.title)
-        ? anime.title[0]
-        : anime.title?._ || "Unknown Anime";
+    const res = await fetch(`${BASE}/anime/${aid}/full`);
+    if (!res.ok) throw new Error(`Jikan returned ${res.status}`);
+    const data = await res.json();
+    const anime = data.data;
 
     return {
-      aid,
-      title,
-      type: anime.type || "Unknown",
-      episodes: anime.episodecount || "N/A",
-      year: anime.startdate || "",
-      rating: anime.rating || "N/A",
-      description:
-        anime.description ||
-        "Bu anime hakkında detaylı bilgi AniDB API üzerinden alınamadı.",
+      aid: anime.mal_id,
+      title: anime.title,
+      synopsis: anime.synopsis,
+      score: anime.score,
+      episodes: anime.episodes,
+      image: anime.images?.jpg?.large_image_url,
+      genres: anime.genres?.map((g: any) => g.name) || [],
+      type: anime.type,
+      year: anime.year,
     };
-  } catch (error: any) {
-    console.error(`Failed to fetch anime with ID ${aid}:`, error);
+  } catch (err) {
+    console.error("Failed to fetch anime by ID:", err);
     return null;
   }
 }
-
