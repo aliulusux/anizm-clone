@@ -150,18 +150,35 @@ export default async function Home({
             {/* 🔥 En Popüler */}
             <section
               className="glass"
-              style={{ padding: "18px", marginBottom: 18 }}
+              style={{
+                padding: "24px 20px",
+                marginBottom: "32px",
+                overflow: "hidden",
+                borderRadius: "16px",
+              }}
             >
-              <h2 style={{ margin: "6px 12px 0" }}>En Popüler</h2>
-              <div className="grid">
+              <h2
+                style={{
+                  marginBottom: "16px",
+                  fontSize: "20px",
+                  fontWeight: 600,
+                }}
+              >
+                En Popüler
+              </h2>
+
+              <div
+                className="grid"
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+                  gap: "18px",
+                  justifyItems: "center",
+                }}
+              >
                 {hot.length > 0 ? (
                   hot.map((a: any) => (
-                    <AnimeCard
-                      key={a.aid}
-                      aid={a.aid}
-                      title={a.title}
-                      image={a.image}
-                    />
+                    <AnimeCard key={a.aid} aid={a.aid} title={a.title} image={a.image} />
                   ))
                 ) : (
                   <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>

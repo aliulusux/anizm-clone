@@ -47,3 +47,12 @@ a{color:inherit; text-decoration:none}
   scroll-behavior: smooth;
 }
 
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 16px;
+  box-shadow: 0 0 25px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+}
+
+
