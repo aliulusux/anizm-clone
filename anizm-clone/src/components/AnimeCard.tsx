@@ -22,26 +22,32 @@ export default function AnimeCard({
         background: "rgba(255,255,255,0.05)",
         textDecoration: "none",
         color: "inherit",
+        width: "160px",
+        minWidth: "160px",
       }}
     >
       <div
         className="glass"
         style={{
           width: "100%",
-          height: 220,
+          aspectRatio: "3 / 4", // makes consistent proportions
           overflow: "hidden",
           borderBottom: "1px solid rgba(255,255,255,0.1)",
+          borderRadius: "12px 12px 0 0",
         }}
       >
-        {image ? (
-          <Image
-            src={image}
-            alt={title}
-            width={200}
-            height={300}
-            style={{ objectFit: "cover", width: "100%", height: "100%" }}
-          />
-        ) : (
+        <Image
+          src={image}
+          alt={title}
+          width={300}
+          height={400}
+          style={{
+            objectFit: "cover",
+            width: "100%",
+            height: "100%",
+            borderRadius: "12px 12px 0 0",
+          }}
+        />
           <div
             style={{
               height: "100%",
