@@ -1,5 +1,7 @@
 import { Suspense } from "react";
 import Header from "@/components/Header";
+import AuthGate from "@/components/AuthGate";
+import AnimeCard from "@/components/AnimeCard";
 import LoadingGrid from "@/components/LoadingGrid"; // we'll add this next
 
 export default async function Home() {
