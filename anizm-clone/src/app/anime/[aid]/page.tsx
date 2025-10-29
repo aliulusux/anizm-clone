@@ -1,3 +1,8 @@
+import Image from "next/image";
+import Link from "next/link";
+
+export const dynamic = "force-dynamic";
+
 async function fetchRelatedWithCovers(id: string) {
   try {
     const relRes = await fetch(`https://api.jikan.moe/v4/anime/${id}/relations`);
