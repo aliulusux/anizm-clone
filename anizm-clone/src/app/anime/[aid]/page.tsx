@@ -40,9 +40,7 @@ async function getRelatedAnimeWithCovers(aid: number) {
     });
     if (!res.ok) return [];
     const data = await res.json();
-
-    // Flatten and normalize related entries
-    return (
+    const entries =
       data.data
         ?.flatMap((r: any) =>
           (r.entry || []).map((e: any) => ({
@@ -55,8 +53,32 @@ async function getRelatedAnimeWithCovers(aid: number) {
               e.images?.webp?.image_url,
           }))
         )
-        .filter((x: any) => x.aid && x.title) || []
+        .filter((x: any) => x.aid && x.title) || [];
+
+    // Some entries have no image -> fetch them individually
+    const withImages = await Promise.all(
+      entries.map(async (r) => {
+        if (r.image) return r;
+        try {
+          const resp = await fetch(`https://api.jikan.moe/v4/anime/${r.aid}`);
+          if (!resp.ok) return r;
+          const json = await resp.json();
+          return {
+            ...r,
+            image:
+              json.data?.images?.jpg?.large_image_url ||
+              json.data?.images?.jpg?.image_url ||
+              json.data?.webp?.large_image_url ||
+              json.data?.webp?.image_url ||
+              null,
+          };
+        } catch {
+          return r;
+        }
+      })
     );
+
+    return withImages;
   } catch {
     return [];
   }
@@ -100,8 +122,8 @@ export default async function AnimePage({ params }: Params) {
   // --------------- UI (unchanged – same structure/styles) ---------------
 
   return (
-    <Header />
     <main style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: 16 }}>
+      <Header />
       {/* header / hero */}
       <section
         className="glass"
