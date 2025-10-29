@@ -36,9 +36,10 @@ async function fetchEpisodes(aid: string | number) {
 async function getRelatedAnimeWithCovers(aid: number) {
   try {
     const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/relations`, {
-      next: { revalidate: 300 },
+      next: { revalidate: 3600 },
     });
     if (!res.ok) return [];
+
     const data = await res.json();
     const entries =
       data.data
@@ -55,31 +56,48 @@ async function getRelatedAnimeWithCovers(aid: number) {
         )
         .filter((x: any) => x.aid && x.title) || [];
 
-    // Some entries have no image -> fetch them individually
-    const withImages = await Promise.all(
-      entries.map(async (r) => {
-        if (r.image) return r;
-        try {
-          const resp = await fetch(`https://api.jikan.moe/v4/anime/${r.aid}`);
-          if (!resp.ok) return r;
-          const json = await resp.json();
-          return {
-            ...r,
-            image:
-              json.data?.images?.jpg?.large_image_url ||
-              json.data?.images?.jpg?.image_url ||
-              json.data?.webp?.large_image_url ||
-              json.data?.webp?.image_url ||
-              null,
-          };
-        } catch {
-          return r;
+    // helper: wait a bit between API calls
+    const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
+    // helper: fetch with retry and graceful fallback
+    async function fetchCover(id: number, attempt = 0): Promise<string | null> {
+      try {
+        const r = await fetch(`https://api.jikan.moe/v4/anime/${id}`);
+        if (!r.ok) throw new Error();
+        const j = await r.json();
+        return (
+          j.data?.images?.jpg?.large_image_url ||
+          j.data?.images?.jpg?.image_url ||
+          j.data?.images?.webp?.large_image_url ||
+          j.data?.images?.webp?.image_url ||
+          null
+        );
+      } catch {
+        if (attempt < 2) {
+          await sleep(500); // retry a bit later
+          return fetchCover(id, attempt + 1);
         }
-      })
-    );
+        return null;
+      }
+    }
+
+    const withImages: any[] = [];
+    for (const item of entries) {
+      if (item.image) {
+        withImages.push(item);
+        continue;
+      }
+      await sleep(350); // throttle to avoid rate-limit
+      const image = await fetchCover(item.aid);
+      withImages.push({
+        ...item,
+        image: image || "/placeholder.jpg", // fallback local image
+      });
+    }
 
     return withImages;
-  } catch {
+  } catch (err) {
+    console.error("related fetch failed", err);
     return [];
   }
 }
