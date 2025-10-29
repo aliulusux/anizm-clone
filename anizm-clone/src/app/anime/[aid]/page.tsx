@@ -1,28 +1,41 @@
 import Image from "next/image";
 
 async function fetchAnime(id: string) {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/full`);
-  if (!res.ok) throw new Error("Anime not found");
-  const data = await res.json();
-  return data.data;
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/full`);
+    if (!res.ok) throw new Error("Anime not found");
+    const data = await res.json();
+    return data.data;
+  } catch {
+    return null;
+  }
 }
 
 async function fetchEpisodes(id: string) {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/episodes`);
-  if (!res.ok) return [];
-  const data = await res.json();
-  return data.data || [];
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/episodes`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.data || [];
+  } catch {
+    return [];
+  }
 }
 
 async function fetchRelated(id: string) {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/relations`);
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (
-    data.data
-      ?.flatMap((r: any) => r.entry)
-      ?.filter((a: any) => a.type === "anime") || []
-  );
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/relations`);
+    if (!res.ok) return [];
+    const data = await res.json();
+    if (!data.data) return [];
+    return (
+      data.data
+        ?.flatMap((r: any) => r.entry)
+        ?.filter((a: any) => a.type === "anime") || []
+    );
+  } catch {
+    return [];
+  }
 }
 
 export default async function AnimePage({
