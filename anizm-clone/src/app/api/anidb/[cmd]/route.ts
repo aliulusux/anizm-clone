@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getHotAnime } from "../../../lib/anidb";
+import { getHotAnime } from "@/lib/anidb";
 
 export async function GET(_:NextRequest, { params }:{params:{cmd:string}}){
   try{
