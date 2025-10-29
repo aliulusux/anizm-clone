@@ -1,49 +1,64 @@
 /* -------------------------------- page -------------------------------- */
 
 import Image from "next/image";
+import { headers } from "next/headers";
 import { getRelatedAnimeWithCovers } from "@/lib/jikan";
 
 type Params = { params: { aid: string } };
 
+function resolveBase() {
+  // Prefer explicit env on Vercel/Prod
+  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
+
+  // Derive from request headers (works on Vercel/Node server)
+  const h = headers();
+  const proto = h.get("x-forwarded-proto") ?? "https";
+  const host = h.get("x-forwarded-host") ?? h.get("host");
+  if (host) return `${proto}://${host}`;
+
+  // Final fallback for local dev
+  return "http://localhost:3000";
+}
+
 // ----------------------- Server-side data loaders -----------------------
 
 async function fetchAnime(aid: string | number) {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${base}/api/jikan/anime/${aid}`, {
-    // Cache a little; tune as you wish
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) throw new Error("Anime fetch failed");
-  return res.json();
+  const base = resolveBase();
+  try {
+    const res = await fetch(`${base}/api/jikan/anime/${aid}`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch {
+    return null;
+  }
 }
 
 async function fetchEpisodes(aid: string | number) {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${base}/api/jikan/episodes/${aid}`, {
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) throw new Error("Episodes fetch failed");
-  return res.json();
+  const base = resolveBase();
+  try {
+    const res = await fetch(`${base}/api/jikan/episodes/${aid}`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return { items: [] as any[] };
+    const data = await res.json();
+    return data ?? { items: [] as any[] };
+  } catch {
+    return { items: [] as any[] };
+  }
 }
-
-/**
- * Returns normalized related items shaped as:
- *   { aid: number; title: string; image?: string }
- *
- * Your existing API route already returns these fields; the only issue
- * was that the render code still referenced `mal_id`. We fix that below.
- */
 
 // -------------------------------- Page ---------------------------------
 
 export default async function AnimePage({ params }: Params) {
   const aidNum = Number(params.aid);
 
-  // load everything in parallel
+  // load everything in parallel (fail-soft)
   const [anime, episodes, related] = await Promise.all([
     fetchAnime(aidNum),
     fetchEpisodes(aidNum),
-    getRelatedAnimeWithCovers(aidNum),
+    getRelatedAnimeWithCovers(aidNum).catch(() => [] as Array<{ aid: number; title: string; image?: string }>),
   ]);
 
   if (!anime) {
@@ -167,7 +182,7 @@ export default async function AnimePage({ params }: Params) {
         </section>
       )}
 
-      {/* Related / Benzer Animeler — ONLY fix is mal_id -> aid */}
+      {/* Related / Benzer Animeler — uses { aid, title, image } */}
       <section className="glass" style={{ padding: 16, borderRadius: 16 }}>
         <h3 style={{ marginTop: 0, marginBottom: 12 }}>Benzer Animeler</h3>
 
@@ -181,12 +196,8 @@ export default async function AnimePage({ params }: Params) {
               scrollbarWidth: "thin",
             }}
           >
-            {related.map((r) => (
-              <a
-                key={r.aid}
-                href={`/anime/${r.aid}`}
-                style={{ textDecoration: "none" }}
-              >
+            {related.map((r: { aid: number; title: string; image?: string }) => (
+              <a key={r.aid} href={`/anime/${r.aid}`} style={{ textDecoration: "none" }}>
                 <div
                   className="glass"
                   style={{
@@ -231,9 +242,7 @@ export default async function AnimePage({ params }: Params) {
                     )}
                   </div>
 
-                  <div style={{ marginTop: 8, fontSize: 12, opacity: 0.9 }}>
-                    {r.title}
-                  </div>
+                  <div style={{ marginTop: 8, fontSize: 12, opacity: 0.9 }}>{r.title}</div>
                 </div>
               </a>
             ))}
@@ -243,15 +252,12 @@ export default async function AnimePage({ params }: Params) {
         )}
       </section>
 
-      {/* Optional: slim scroll styling hook (kept subtle) */}
+      {/* slim scroll styling hook (kept subtle) */}
       <style
-        // keep the existing class and only affect the scrollbar track/thumb
         dangerouslySetInnerHTML={{
           __html: `
             .episodes-scroll::-webkit-scrollbar { height: 8px; }
-            .episodes-scroll::-webkit-scrollbar-track {
-              background: transparent;
-            }
+            .episodes-scroll::-webkit-scrollbar-track { background: transparent; }
             .episodes-scroll::-webkit-scrollbar-thumb {
               background: rgba(255,255,255,0.12);
               border-radius: 9999px;
