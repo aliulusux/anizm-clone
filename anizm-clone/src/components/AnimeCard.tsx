@@ -3,6 +3,16 @@ import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
+export default function AnimeCard({
+  aid,
+  title,
+  image,
+}: {
+  aid: string | number;
+  title: string;
+  image?: string;
+}) {
+
 /** Main details */
 async function fetchAnime(id: string) {
   try {

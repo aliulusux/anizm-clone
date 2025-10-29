@@ -74,12 +74,7 @@ export default async function Home({
             <div className="grid">
               {hot.length > 0 ? (
                 hot.map((a: any) => (
-                  <AnimeCard
-                    key={a.aid}
-                    aid={a.aid}
-                    title={a.title}
-                    image={a.image}
-                  />
+                  <AnimeCard params={{ aid: a.aid }} />
                 ))
               ) : (
                 <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
