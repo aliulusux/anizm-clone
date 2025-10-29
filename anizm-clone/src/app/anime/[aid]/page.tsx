@@ -1,6 +1,7 @@
 /* -------------------------------- page -------------------------------- */
 
 import Image from "next/image";
+import { getRelatedAnimeWithCovers } from "@/lib/jikan";
 
 type Params = { params: { aid: string } };
 
