@@ -85,8 +85,9 @@ export default async function AnimePage({ params }: { params: { aid: string } })
   const [anime, episodes, related] = await Promise.all([
     fetchAnime(params.aid),
     fetchEpisodes(params.aid),
-    getRelatedAnimeWithCovers(Number(params.aid)),
   ]);
+
+  const related: Array<{ aid: number; title: string; image?: string }> = await getRelatedAnimeWithCovers(Number(params.aid));
 
   if (!anime) {
     return (
