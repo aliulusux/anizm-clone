@@ -60,7 +60,6 @@ export default function AnimeCard({
           >
             Görsel Yok
           </div>
-        )}
       </div>
       <div style={{ padding: 10 }}>
         <p
