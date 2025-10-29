@@ -102,6 +102,9 @@ export default async function AnimePage({ params }: { params: { aid: string } })
     "";
 
   return (
+    <Suspense fallback={<div style={{ padding: 20 }}>Yükleniyor...</div>}>
+        <Header />
+      </Suspense>
     <div style={{ position: "relative", minHeight: "100vh" }}>
       {/* BG hero blur */}
       {cover && (
