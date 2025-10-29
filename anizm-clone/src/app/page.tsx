@@ -2,9 +2,10 @@ import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import AuthGate from "@/components/AuthGate";
 
+export const dynamic = "force-dynamic";
+
 async function fetchHot() {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${base}/api/anidb/hotanime`, { next: { revalidate: 300 } });
+  const res = await fetch(`${process.env.NEXT_PUBLIC_VERCEL_URL ? '' : 'http://localhost:3000'}/api/anidb/hotanime`, { next: { revalidate: 300 } });
 
   if (!res.ok) {
     console.error("Fetch failed:", res.status, await res.text());
