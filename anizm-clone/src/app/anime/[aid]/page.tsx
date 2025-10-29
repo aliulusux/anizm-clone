@@ -1,6 +1,7 @@
 /* -------------------------------- page -------------------------------- */
 
 import Image from "next/image";
+import Header from "@/components/Header";
 
 type Params = { params: { aid: string } };
 
@@ -101,6 +102,7 @@ export default async function AnimePage({ params }: Params) {
   return (
     <main style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: 16 }}>
       {/* header / hero */}
+      <Header />
       <section
         className="glass"
         style={{
