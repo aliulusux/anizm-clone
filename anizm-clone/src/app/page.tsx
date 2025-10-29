@@ -1,18 +1,17 @@
 import { Suspense } from "react";
-import { headers } from "next/headers";
-import { notFound } from "next/navigation";
 import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import AuthGate from "@/components/AuthGate";
 
 export const dynamic = "force-dynamic";
 
+// 🔥 Fetch top anime (En Popüler)
 async function fetchHot(query?: string) {
   try {
     const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const url = query
       ? `${base}/api/anidb/search?q=${encodeURIComponent(query)}`
-      : `${base}/api/anidb/hotanime`;
+      : `${base}/api/anidb/cmd`;
 
     const res = await fetch(url, { next: { revalidate: 300 } });
     if (!res.ok) throw new Error("Failed to fetch anime list");
@@ -24,10 +23,14 @@ async function fetchHot(query?: string) {
     return [];
   }
 }
+
+// 🍂 Fetch current season anime (Bu Sezon Popüler)
 async function fetchSeasonal() {
   const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   try {
-    const res = await fetch(`${base}/api/anidb/season`, { next: { revalidate: 300 } });
+    const res = await fetch(`${base}/api/anidb/season`, {
+      next: { revalidate: 21600 }, // refresh every 6 hours
+    });
     if (!res.ok) throw new Error("Failed to fetch seasonal anime list");
     const data = await res.json();
     return data.items || [];
@@ -37,12 +40,21 @@ async function fetchSeasonal() {
   }
 }
 
-export default async function Home({ searchParams }: { searchParams?: { q?: string } }) {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { q?: string };
+}) {
   const query = searchParams?.q || "";
   const hot = await fetchHot(query);
+  const seasonal = !query ? await fetchSeasonal() : [];
+
+  // 🧩 Remove duplicates between seasonal and hot lists
+  const seasonalUnique = seasonal.filter(
+    (s: any) => !hot.some((h: any) => h.aid === s.aid)
+  );
 
   return (
-
     <div>
       <Suspense fallback={<div style={{ padding: 20 }}>Yükleniyor...</div>}>
         <Header />
@@ -53,29 +65,74 @@ export default async function Home({ searchParams }: { searchParams?: { q?: stri
           <AuthGate />
         </section>
 
-        <section className="glass" style={{ padding: "18px" }}>
-          <h2 style={{ margin: "6px 0 12px 0" }}>
-            {query ? `"${query}" için arama sonuçları` : "Bu Sezon Popüler"}
-          </h2>
-
-        {hot.length > 0 && (
-          <section className="glass" style={{ padding: "18px", marginBottom: 18 }}>
-            <h2 style={{ margin: "6px 12px 0" }}>En Popüler</h2>
+        {/* 🔍 Search Results */}
+        {query ? (
+          <section className="glass" style={{ padding: "18px" }}>
+            <h2 style={{ margin: "6px 0 12px 0" }}>
+              "{query}" için arama sonuçları
+            </h2>
             <div className="grid">
-              {hot.map((a: any) => (
-                <AnimeCard key={a.aid} aid={a.aid} title={a.title} />
-              ))}
+              {hot.length > 0 ? (
+                hot.map((a: any) => (
+                  <AnimeCard
+                    key={a.aid}
+                    aid={a.aid}
+                    title={a.title}
+                    image={a.image}
+                  />
+                ))
+              ) : (
+                <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
+              )}
             </div>
           </section>
+        ) : (
+          <>
+            {/* 🍂 Bu Sezon Popüler */}
+            <section
+              className="glass"
+              style={{ padding: "18px", marginBottom: 18 }}
+            >
+              <h2 style={{ margin: "6px 12px 0" }}>Bu Sezon Popüler</h2>
+              <div className="grid">
+                {seasonalUnique.length > 0 ? (
+                  seasonalUnique.map((a: any) => (
+                    <AnimeCard
+                      key={a.aid}
+                      aid={a.aid}
+                      title={a.title}
+                      image={a.image}
+                    />
+                  ))
+                ) : (
+                  <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
+                )}
+              </div>
+            </section>
+
+            {/* 🔥 En Popüler */}
+            <section
+              className="glass"
+              style={{ padding: "18px", marginBottom: 18 }}
+            >
+              <h2 style={{ margin: "6px 12px 0" }}>En Popüler</h2>
+              <div className="grid">
+                {hot.length > 0 ? (
+                  hot.map((a: any) => (
+                    <AnimeCard
+                      key={a.aid}
+                      aid={a.aid}
+                      title={a.title}
+                      image={a.image}
+                    />
+                  ))
+                ) : (
+                  <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
+                )}
+              </div>
+            </section>
+          </>
         )}
-          <div className="grid">
-            {hot.length > 0 ? (
-              hot.map((a: any) => <AnimeCard key={a.aid} aid={a.aid} title={a.title} />)
-            ) : (
-              <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
-            )}
-          </div>
-        </section>
       </main>
     </div>
   );

@@ -42,7 +42,7 @@ export async function getHotAnime() {
 
 export async function searchAnimeByTitle(query: string) {
   try {
-    const res = await fetch(`${BASE}/anime?q=${encodeURIComponent(query)}&limit=10`);
+    const res = await fetch(`https://api.jikan.moe/v4/anime?q=${encodeURIComponent(query)}&limit=20`);
     if (!res.ok) throw new Error(`Jikan returned ${res.status}`);
     const data = await res.json();
 
