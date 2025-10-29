@@ -1,40 +1,34 @@
 import { Suspense } from "react";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
 import Header from "@/components/Header";
-import AuthGate from "@/components/AuthGate";
 import AnimeCard from "@/components/AnimeCard";
-import LoadingGrid from "@/components/LoadingGrid"; // we'll add this next
+import AuthGate from "@/components/AuthGate";
 
-async function fetchHot() {
+export const dynamic = "force-dynamic";
+
+async function fetchHot(query?: string) {
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/anidb/hotanime`,
-      { next: { revalidate: 300 } }
-    );
-    if (!res.ok) throw new Error("Fetch failed");
+    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    const url = query
+      ? `${base}/api/anidb/search?q=${encodeURIComponent(query)}`
+      : `${base}/api/anidb/hotanime`;
+
+    const res = await fetch(url, { next: { revalidate: 300 } });
+    if (!res.ok) throw new Error("Failed to fetch anime list");
+
     const data = await res.json();
     return data.items || [];
   } catch (err) {
-    console.error("Failed to fetch hot anime:", err);
+    console.error("fetchHot error:", err);
     return [];
   }
 }
 
-async function AnimeGrid() {
-  const hot = await fetchHot();
-  if (!hot || hot.length === 0)
-    return <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😢</p>;
+export default async function Home({ searchParams }: { searchParams?: { q?: string } }) {
+  const query = searchParams?.q || "";
+  const hot = await fetchHot(query);
 
-  return (
-    <div className="grid">
-      {hot.map((a: any) => (
-        <AnimeCard key={a.aid} aid={a.aid} title={a.title} />
-      ))}
-    </div>
-  );
-}
-
-export default async function Home() {
-  const hot = await fetchHot();
   return (
     <div>
       <Suspense fallback={<div style={{ padding: 20 }}>Yükleniyor...</div>}>
@@ -47,11 +41,16 @@ export default async function Home() {
         </section>
 
         <section className="glass" style={{ padding: "18px" }}>
-          <h2 style={{ margin: "6px 0 12px 0" }}>Bu Sezon Popüler</h2>
+          <h2 style={{ margin: "6px 0 12px 0" }}>
+            {query ? `"${query}" için arama sonuçları` : "Bu Sezon Popüler"}
+          </h2>
+
           <div className="grid">
-            {hot.map((a: any) => (
-              <AnimeCard key={a.aid} aid={a.aid} title={a.title} />
-            ))}
+            {hot.length > 0 ? (
+              hot.map((a: any) => <AnimeCard key={a.aid} aid={a.aid} title={a.title} />)
+            ) : (
+              <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
+            )}
           </div>
         </section>
       </main>
