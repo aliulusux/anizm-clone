@@ -100,9 +100,9 @@ export default async function AnimePage({ params }: Params) {
   // --------------- UI (unchanged – same structure/styles) ---------------
 
   return (
+    <Header />
     <main style={{ width: "100%", maxWidth: 1200, margin: "0 auto", padding: 16 }}>
       {/* header / hero */}
-      <Header />
       <section
         className="glass"
         style={{
