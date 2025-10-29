@@ -1,41 +1,24 @@
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
+import AnimeCard from "@/components/AnimeCard";
 
 export const dynamic = "force-dynamic";
 
 // -------- Fetch Anime Details --------
 async function fetchAnime(id: string) {
-  try {
-    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}`);
-    if (!res.ok) throw new Error("Anime fetch failed");
-    const json = await res.json();
-    return json.data;
-  } catch (err) {
-    console.error("fetchAnime error:", err);
-    return null;
-  }
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${id}`);
+  if (!res.ok) throw new Error("Anime not found");
+  const data = await res.json();
+  return data.data;
 }
 
 // -------- Fetch Episodes --------
 async function fetchEpisodes(id: string) {
-  const episodes: any[] = [];
-  let page = 1;
-  try {
-    while (page <= 3) {
-      const res = await fetch(
-        `https://api.jikan.moe/v4/anime/${id}/episodes?page=${page}`
-      );
-      if (!res.ok) break;
-      const json = await res.json();
-      episodes.push(...(json.data || []));
-      if (!json.pagination?.has_next_page) break;
-      page++;
-    }
-  } catch (err) {
-    console.error("fetchEpisodes error:", err);
-  }
-  return episodes;
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/episodes`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return data.data || [];
 }
 
 // -------- Fetch Related Anime --------
@@ -81,7 +64,7 @@ export default async function AnimePage({
   params,
 }: {
   params: { aid: string };
-}): Promise<JSX.Element> {
+}) {
   const anime = await fetchAnime(params.aid);
   const episodes = await fetchEpisodes(params.aid);
   const related = await fetchRelated(params.aid);
