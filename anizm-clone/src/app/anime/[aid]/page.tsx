@@ -1,12 +1,10 @@
+import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 
-// ✅ Required for dynamic SSR pages
 export const dynamic = "force-dynamic";
 
-/* ---------------- Fetch Helpers ---------------- */
-
-// Fetch single anime details
+// -------- Fetch Anime Details --------
 async function fetchAnime(id: string) {
   try {
     const res = await fetch(`https://api.jikan.moe/v4/anime/${id}`);
@@ -19,7 +17,7 @@ async function fetchAnime(id: string) {
   }
 }
 
-// Fetch episodes (paginated)
+// -------- Fetch Episodes --------
 async function fetchEpisodes(id: string) {
   const episodes: any[] = [];
   let page = 1;
@@ -40,7 +38,7 @@ async function fetchEpisodes(id: string) {
   return episodes;
 }
 
-// Fetch related anime (with covers)
+// -------- Fetch Related Anime --------
 async function fetchRelated(id: string) {
   try {
     const relRes = await fetch(`https://api.jikan.moe/v4/anime/${id}/relations`);
@@ -78,13 +76,12 @@ async function fetchRelated(id: string) {
   }
 }
 
-/* ---------------- Page Component ---------------- */
-
+// -------- Actual Page Component --------
 export default async function AnimePage({
   params,
 }: {
   params: { aid: string };
-}) {
+}): Promise<JSX.Element> {
   const anime = await fetchAnime(params.aid);
   const episodes = await fetchEpisodes(params.aid);
   const related = await fetchRelated(params.aid);
@@ -105,7 +102,7 @@ export default async function AnimePage({
 
   return (
     <div className="container" style={{ marginTop: 40, marginBottom: 60 }}>
-      {/* --------- Anime Details --------- */}
+      {/* -------- Details -------- */}
       <section
         className="glass"
         style={{
@@ -155,7 +152,7 @@ export default async function AnimePage({
         </div>
       </section>
 
-      {/* --------- Episodes --------- */}
+      {/* -------- Episodes -------- */}
       {episodes.length > 0 && (
         <section
           className="glass"
@@ -175,7 +172,7 @@ export default async function AnimePage({
           >
             {episodes.map((ep: any) => (
               <div
-                key={ep.mal_id}
+                key={ep.mal_id || ep.episode_id}
                 className="glass"
                 style={{
                   padding: 12,
@@ -184,7 +181,7 @@ export default async function AnimePage({
                 }}
               >
                 <strong>
-                  Bölüm {ep.mal_id || ep.episode || ep.number}: {ep.title}
+                  Bölüm {ep.mal_id || ep.mal || ep.number}: {ep.title}
                 </strong>
                 <p style={{ fontSize: 13, opacity: 0.7 }}>
                   {ep.aired ? new Date(ep.aired).toLocaleDateString() : "—"}
@@ -195,7 +192,7 @@ export default async function AnimePage({
         </section>
       )}
 
-      {/* --------- Related Anime --------- */}
+      {/* -------- Related Anime -------- */}
       {related.length > 0 && (
         <section className="glass" style={{ padding: 20, borderRadius: 16 }}>
           <h2 style={{ fontSize: 20, marginBottom: 14 }}>İlgili Animeler</h2>
