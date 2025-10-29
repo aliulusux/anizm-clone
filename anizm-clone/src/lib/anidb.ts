@@ -1,7 +1,10 @@
 import { LRUCache } from "lru-cache";
 import { parseStringPromise } from "xml2js";
 
-const cache = new LRUCache<string, any>({ max: 500, ttl: 1000 * 60 * 10 });
+const cache = new LRUCache<string, any>({
+  max: 100,
+  ttl: 1000 * 60 * 10 // 10 minutes
+});
 let lastCall = 0;
 async function throttle() {
   const waitFor = Math.max(0, 2000 - (Date.now() - lastCall));
