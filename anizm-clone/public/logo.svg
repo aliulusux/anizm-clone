@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="160" height="40" viewBox="0 0 160 40">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6c4df5" offset="0"/>
+      <stop stop-color="#9b6bff" offset="1"/>
+    </linearGradient>
+  </defs>
+  <rect rx="12" width="160" height="40" fill="url(#g)"/>
+  <text x="80" y="26" text-anchor="middle" font-family="Verdana" font-weight="bold" font-size="18" fill="white">Anizm</text>
+</svg>
