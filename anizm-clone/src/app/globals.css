@@ -90,5 +90,28 @@ a{color:inherit; text-decoration:none}
   opacity: 0.8;
 }
 
+/* Episodes horizontal scroller — slim, glassy scrollbar */
+.hscroll {
+  scrollbar-width: thin;                     /* Firefox */
+  scrollbar-color: rgba(255,255,255,.22) transparent;
+}
+
+.hscroll::-webkit-scrollbar {
+  height: 8px;                               /* slim horizontal bar */
+}
+
+.hscroll::-webkit-scrollbar-track {
+  background: transparent;                   /* hide track */
+}
+
+.hscroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.18);
+  border-radius: 999px;
+  border: 2px solid transparent;             /* creates a pill look */
+}
+
+.hscroll:hover::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.28);         /* a bit more visible on hover */
+}
 
 

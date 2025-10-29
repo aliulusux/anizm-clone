@@ -198,12 +198,13 @@ export default async function AnimePage({ params }: { params: { aid: string } })
             >
               <h2 style={{ fontSize: 20, margin: 0, marginBottom: 12 }}>Bölümler</h2>
               <div
+                className="hscroll"
                 style={{
                   display: "flex",
                   gap: 12,
                   overflowX: "auto",
                   paddingBottom: 8,
-                  scrollbarWidth: "thin" as any,
+                  scrollbarWidth: "thin" as any,   // keep for Firefox
                 }}
               >
                 {episodes.map((ep: any) => (
