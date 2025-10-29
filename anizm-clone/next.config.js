@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
   images: {
-    remotePatterns: [{ protocol: 'https', hostname: 'cdn.anidb.net' }],
+    domains: ["cdn.myanimelist.net"], // Jikan’s image host
   },
+  reactStrictMode: true,
 };
+
 module.exports = nextConfig;

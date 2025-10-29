@@ -95,19 +95,22 @@ export default async function Home({
                 padding: "18px",
                 marginBottom: 18,
                 overflow: "hidden",
+                position: "relative",
               }}
             >
               <h2 style={{ margin: "6px 12px 12px" }}>Bu Sezon Popüler</h2>
+
               <div
                 className="carousel"
                 style={{
                   display: "flex",
                   gap: "16px",
-                  overflowX: "auto",
+                  overflowX: "hidden",
                   scrollSnapType: "x mandatory",
-                  scrollbarWidth: "none",
-                  paddingBottom: "10px",
+                  padding: "6px 4px 10px 4px",
+                  scrollBehavior: "smooth",
                 }}
+                id="season-carousel"
               >
                 {seasonalUnique.length > 0 ? (
                   seasonalUnique.map((a: any) => (
@@ -126,6 +129,23 @@ export default async function Home({
                 )}
               </div>
             </section>
+
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `
+                  const scroller = document.getElementById('season-carousel');
+                  let scrollPos = 0;
+                  setInterval(() => {
+                    if (!scroller) return;
+                    scrollPos += 200;
+                    if (scrollPos >= scroller.scrollWidth - scroller.clientWidth) {
+                      scrollPos = 0;
+                    }
+                    scroller.scrollTo({ left: scrollPos, behavior: 'smooth' });
+                  }, 2500);
+                `,
+              }}
+            />
 
             {/* 🔥 En Popüler */}
             <section
