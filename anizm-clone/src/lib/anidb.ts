@@ -1,44 +1,33 @@
-import { LRUCache } from "lru-cache";
-import { parseStringPromise } from "xml2js";
+import xml2js from "xml2js";
 
-const cache = new LRUCache<string, any>({
-  max: 100,
-  ttl: 1000 * 60 * 10 // 10 minutes
-});
-let lastCall = 0;
-async function throttle() {
-  const waitFor = Math.max(0, 2000 - (Date.now() - lastCall));
-  if (waitFor) await new Promise(r => setTimeout(r, waitFor));
-  lastCall = Date.now();
-}
+export async function getHotAnime() {
+  const url = `https://api.anidb.net:9001/httpapi?request=hotanime&client=${process.env.ANIDB_CLIENT}&clientver=${process.env.ANIDB_CLIENTVER}&protover=${process.env.ANIDB_PROTO}`;
 
-export async function anidbFetch(params: Record<string,string|number>) {
-  const base = "http://api.anidb.net:9001/httpapi";
-  const q = new URLSearchParams({
-    client: process.env.ANIDB_CLIENT!,
-    clientver: process.env.ANIDB_CLIENTVER!,
-    protover: process.env.ANIDB_PROTO || "1",
-    ...Object.fromEntries(Object.entries(params).map(([k,v])=>[k,String(v)]))
-  });
-  const url = `${base}?${q.toString()}`;
-  const cached = cache.get(url);
-  if (cached) return cached;
-  await throttle();
-  const res = await fetch(url, { headers: { "Accept-Encoding":"gzip" }});
-  if (!res.ok) throw new Error(`AniDB error ${res.status}`);
-  const xml = await res.text();
-  const json = await parseStringPromise(xml, { explicitArray:false, mergeAttrs:true });
-  cache.set(url, json);
-  return json;
-}
+  try {
+    const res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error(`AniDB returned ${res.status}`);
 
-export async function getHotAnime(){
-  const data = await anidbFetch({ request:"hotanime" });
-  const list = (data?.anime?.hot as any[]) || [];
-  return list.map((x:any)=> ({ aid: Number(x.id), weight: Number(x.votes || x.weight || 0) }));
-}
+    const xml = await res.text();
+    const parser = new xml2js.Parser({ explicitArray: false, mergeAttrs: true });
+    const parsed = await parser.parseStringPromise(xml);
 
-export async function getAnimeById(aid: number){
-  const data = await anidbFetch({ request:"anime", aid });
-  return data;
+    const animeList = parsed?.animelist?.anime || [];
+
+    const items = Array.isArray(animeList)
+      ? animeList.map((a) => ({
+          aid: a.id || a.aid || Math.random().toString(36).slice(2),
+          title:
+            typeof a.title === "string"
+              ? a.title
+              : Array.isArray(a.title)
+              ? a.title[0]
+              : a.title?._ || "Unknown Anime",
+        }))
+      : [];
+
+    return { items };
+  } catch (err: any) {
+    console.error("Failed to fetch AniDB hotanime:", err);
+    return { items: [] };
+  }
 }
