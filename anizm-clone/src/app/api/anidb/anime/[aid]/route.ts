@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { getAnimeById } from "../../lib/anidb";
+import { getAnimeById } from "../lib/anidb";
 
 export async function GET(_:Request, { params }:{params:{aid:string}}){
   try{
