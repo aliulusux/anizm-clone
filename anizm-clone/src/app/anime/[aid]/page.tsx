@@ -33,15 +33,6 @@ async function fetchEpisodes(aid: string | number) {
  * Your existing API route already returns these fields; the only issue
  * was that the render code still referenced `mal_id`. We fix that below.
  */
-async function getRelatedAnimeWithCovers(aid: number) {
-  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-  const res = await fetch(`${base}/api/jikan/related/${aid}`, {
-    next: { revalidate: 300 },
-  });
-  if (!res.ok) throw new Error("Related fetch failed");
-  const data = await res.json();
-  return (data?.items || []) as Array<{ aid: number; title: string; image?: string }>;
-}
 
 // -------------------------------- Page ---------------------------------
 
