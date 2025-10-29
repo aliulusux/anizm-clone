@@ -1,41 +1,36 @@
 import Image from "next/image";
 
-async function fetchAnime(id: string) {
+async function safeFetch(url: string) {
   try {
-    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/full`);
-    if (!res.ok) throw new Error("Anime not found");
-    const data = await res.json();
-    return data.data;
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json?.data || null;
   } catch {
     return null;
   }
 }
 
+async function fetchAnime(id: string) {
+  return await safeFetch(`https://api.jikan.moe/v4/anime/${id}/full`);
+}
+
 async function fetchEpisodes(id: string) {
-  try {
-    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/episodes`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return data.data || [];
-  } catch {
-    return [];
-  }
+  const data = await safeFetch(`https://api.jikan.moe/v4/anime/${id}/episodes`);
+  return Array.isArray(data) ? data : [];
 }
 
 async function fetchRelated(id: string) {
-  try {
-    const res = await fetch(`https://api.jikan.moe/v4/anime/${id}/relations`);
-    if (!res.ok) return [];
-    const data = await res.json();
-    if (!data.data) return [];
-    return (
-      data.data
-        ?.flatMap((r: any) => r.entry)
-        ?.filter((a: any) => a.type === "anime") || []
-    );
-  } catch {
-    return [];
-  }
+  const relData = await safeFetch(`https://api.jikan.moe/v4/anime/${id}/relations`);
+  if (!Array.isArray(relData)) return [];
+  return relData
+    .flatMap((r: any) => r.entry)
+    .filter((a: any) => a?.type === "anime")
+    .map((a: any) => ({
+      mal_id: a.mal_id,
+      title: a.name || a.title,
+      images: a.images || {},
+    }));
 }
 
 export default async function AnimePage({
@@ -49,6 +44,14 @@ export default async function AnimePage({
       fetchEpisodes(params.aid),
       fetchRelated(params.aid),
     ]);
+
+    if (!anime) {
+      return (
+        <div style={{ textAlign: "center", marginTop: "20vh", opacity: 0.7 }}>
+          <p>Anime verisi alınamadı veya bulunamadı 😢</p>
+        </div>
+      );
+    }
 
     return (
       <div style={{ padding: "30px 20px", color: "white" }}>
@@ -224,7 +227,7 @@ export default async function AnimePage({
       </div>
     );
   } catch (err) {
-    console.error("Anime page error:", err);
+    console.log("error fetchedcc");
     return (
       <div
         style={{
