@@ -1,6 +1,6 @@
-import Header from "./components/Header";
-import AnimeCard from "./components/AnimeCard";
-import AuthGate from "./components/AuthGate";
+import Header from "../../../components/Header";
+import AnimeCard from "../../../components/AnimeCard";
+import AuthGate from "../../../components/AuthGate";
 
 async function fetchHot(){
   const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/anidb/hotanime`, { next:{ revalidate:300 }});
