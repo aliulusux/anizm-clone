@@ -91,18 +91,35 @@ export default async function Home({
             {/* 🍂 Bu Sezon Popüler */}
             <section
               className="glass"
-              style={{ padding: "18px", marginBottom: 18 }}
+              style={{
+                padding: "18px",
+                marginBottom: 18,
+                overflow: "hidden",
+              }}
             >
-              <h2 style={{ margin: "6px 12px 0" }}>Bu Sezon Popüler</h2>
-              <div className="grid">
+              <h2 style={{ margin: "6px 12px 12px" }}>Bu Sezon Popüler</h2>
+              <div
+                className="carousel"
+                style={{
+                  display: "flex",
+                  gap: "16px",
+                  overflowX: "auto",
+                  scrollSnapType: "x mandatory",
+                  scrollbarWidth: "none",
+                  paddingBottom: "10px",
+                }}
+              >
                 {seasonalUnique.length > 0 ? (
                   seasonalUnique.map((a: any) => (
-                    <AnimeCard
+                    <div
                       key={a.aid}
-                      aid={a.aid}
-                      title={a.title}
-                      image={a.image}
-                    />
+                      style={{
+                        flex: "0 0 auto",
+                        scrollSnapAlign: "start",
+                      }}
+                    >
+                      <AnimeCard aid={a.aid} title={a.title} image={a.image} />
+                    </div>
                   ))
                 ) : (
                   <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
