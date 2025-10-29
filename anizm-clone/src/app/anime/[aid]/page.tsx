@@ -1,52 +1,64 @@
 /* -------------------------------- page -------------------------------- */
 
 import Image from "next/image";
-import { headers } from "next/headers";
-import { getRelatedAnimeWithCovers } from "@/lib/jikan";
 
 type Params = { params: { aid: string } };
-
-function resolveBase() {
-  // Prefer explicit env on Vercel/Prod
-  if (process.env.NEXT_PUBLIC_BASE_URL) return process.env.NEXT_PUBLIC_BASE_URL;
-
-  // Derive from request headers (works on Vercel/Node server)
-  const h = headers();
-  const proto = h.get("x-forwarded-proto") ?? "https";
-  const host = h.get("x-forwarded-host") ?? h.get("host");
-  if (host) return `${proto}://${host}`;
-
-  // Final fallback for local dev
-  return "http://localhost:3000";
-}
 
 // ----------------------- Server-side data loaders -----------------------
 
 async function fetchAnime(aid: string | number) {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}`);
-  if (!res.ok) return null;
-  const data = await res.json();
-  return data.data;
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.data;
+  } catch {
+    return null;
+  }
 }
 
 async function fetchEpisodes(aid: string | number) {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/episodes`);
-  if (!res.ok) return { items: [] };
-  const data = await res.json();
-  return { items: data.data || [] };
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/episodes`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return { items: [] };
+    const data = await res.json();
+    return { items: data.data || [] };
+  } catch {
+    return { items: [] };
+  }
 }
 
 async function getRelatedAnimeWithCovers(aid: number) {
-  const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/relations`);
-  if (!res.ok) return [];
-  const data = await res.json();
-  return (data.data || [])
-    .map((r: any) => ({
-      aid: r.entry?.[0]?.mal_id,
-      title: r.entry?.[0]?.name,
-      image: r.entry?.[0]?.images?.jpg?.image_url,
-    }))
-    .filter((x: any) => x.aid);
+  try {
+    const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/relations`, {
+      next: { revalidate: 300 },
+    });
+    if (!res.ok) return [];
+    const data = await res.json();
+
+    // Flatten and normalize related entries
+    return (
+      data.data
+        ?.flatMap((r: any) =>
+          (r.entry || []).map((e: any) => ({
+            aid: e.mal_id,
+            title: e.name,
+            image:
+              e.images?.jpg?.large_image_url ||
+              e.images?.jpg?.image_url ||
+              e.images?.webp?.large_image_url ||
+              e.images?.webp?.image_url,
+          }))
+        )
+        .filter((x: any) => x.aid && x.title) || []
+    );
+  } catch {
+    return [];
+  }
 }
 
 // -------------------------------- Page ---------------------------------
@@ -54,11 +66,11 @@ async function getRelatedAnimeWithCovers(aid: number) {
 export default async function AnimePage({ params }: Params) {
   const aidNum = Number(params.aid);
 
-  // load everything in parallel (fail-soft)
+  // Load everything in parallel
   const [anime, episodes, related] = await Promise.all([
     fetchAnime(aidNum),
     fetchEpisodes(aidNum),
-    getRelatedAnimeWithCovers(aidNum).catch(() => [] as Array<{ aid: number; title: string; image?: string }>),
+    getRelatedAnimeWithCovers(aidNum),
   ]);
 
   if (!anime) {
