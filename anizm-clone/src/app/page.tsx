@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import Header from "@/components/Header";
 import LoadingGrid from "@/components/LoadingGrid"; // we'll add this next
 
 export default async function Home() {
