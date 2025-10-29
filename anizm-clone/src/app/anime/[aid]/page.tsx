@@ -163,11 +163,15 @@ export default async function AnimePage({
           }}
         >
           <h2 style={{ fontSize: 20, marginBottom: 14 }}>Bölümler</h2>
+
           <div
+            className="episodes-slider"
             style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+              display: "flex",
+              overflowX: "auto",
+              scrollBehavior: "smooth",
               gap: 12,
+              paddingBottom: 10,
             }}
           >
             {episodes.map((ep: any) => (
@@ -175,16 +179,35 @@ export default async function AnimePage({
                 key={ep.mal_id || ep.episode_id}
                 className="glass"
                 style={{
-                  padding: 12,
+                  flex: "0 0 auto",
+                  width: 160,
+                  minHeight: 90,
                   borderRadius: 10,
+                  padding: 10,
                   background: "rgba(255,255,255,0.05)",
+                  boxShadow: "0 0 8px rgba(0,0,0,0.2)",
+                  transition: "transform 0.2s ease",
                 }}
+                onMouseEnter={(e) =>
+                  ((e.currentTarget.style.transform = "scale(1.05)"))
+                }
+                onMouseLeave={(e) =>
+                  ((e.currentTarget.style.transform = "scale(1)"))
+                }
               >
-                <strong>
+                <strong style={{ display: "block", marginBottom: 4 }}>
                   Bölüm {ep.mal_id || ep.mal || ep.number}: {ep.title}
                 </strong>
-                <p style={{ fontSize: 13, opacity: 0.7 }}>
-                  {ep.aired ? new Date(ep.aired).toLocaleDateString() : "—"}
+                <p
+                  style={{
+                    fontSize: 13,
+                    opacity: 0.7,
+                    whiteSpace: "nowrap",
+                    overflow: "hidden",
+                    textOverflow: "ellipsis",
+                  }}
+                >
+                  {ep.aired ? new Date(ep.aired).toLocaleDateString() : "-"}
                 </p>
               </div>
             ))}
