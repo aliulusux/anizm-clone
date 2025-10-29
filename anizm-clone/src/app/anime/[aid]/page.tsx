@@ -23,30 +23,30 @@ function resolveBase() {
 // ----------------------- Server-side data loaders -----------------------
 
 async function fetchAnime(aid: string | number) {
-  const base = resolveBase();
-  try {
-    const res = await fetch(`${base}/api/jikan/anime/${aid}`, {
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return null;
-    return await res.json();
-  } catch {
-    return null;
-  }
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.data;
 }
 
 async function fetchEpisodes(aid: string | number) {
-  const base = resolveBase();
-  try {
-    const res = await fetch(`${base}/api/jikan/episodes/${aid}`, {
-      next: { revalidate: 300 },
-    });
-    if (!res.ok) return { items: [] as any[] };
-    const data = await res.json();
-    return data ?? { items: [] as any[] };
-  } catch {
-    return { items: [] as any[] };
-  }
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/episodes`);
+  if (!res.ok) return { items: [] };
+  const data = await res.json();
+  return { items: data.data || [] };
+}
+
+async function getRelatedAnimeWithCovers(aid: number) {
+  const res = await fetch(`https://api.jikan.moe/v4/anime/${aid}/relations`);
+  if (!res.ok) return [];
+  const data = await res.json();
+  return (data.data || [])
+    .map((r: any) => ({
+      aid: r.entry?.[0]?.mal_id,
+      title: r.entry?.[0]?.name,
+      image: r.entry?.[0]?.images?.jpg?.image_url,
+    }))
+    .filter((x: any) => x.aid);
 }
 
 // -------------------------------- Page ---------------------------------
