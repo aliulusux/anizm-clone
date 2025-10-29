@@ -2,10 +2,24 @@ import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import AuthGate from "@/components/AuthGate";
 
-async function fetchHot(){
-  const res = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || ""}/api/anidb/hotanime`, { next:{ revalidate:300 }});
-  const { items } = await res.json();
-  return items.slice(0, 18).map((x:any)=>({ aid:x.aid, title:`Anime #${x.aid}` }));
+async function fetchHot() {
+  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const res = await fetch(`${base}/api/anidb/hotanime`, { next: { revalidate: 300 } });
+
+  if (!res.ok) {
+    console.error("Fetch failed:", res.status, await res.text());
+    throw new Error("Failed to fetch AniDB hotanime");
+  }
+
+  let items;
+  try {
+    items = await res.json();
+  } catch (err) {
+    console.error("Invalid JSON response:", await res.text());
+    throw new Error("Invalid JSON from API");
+  }
+
+  return items.slice(0, 18).map((x: any) => ({ aid: x.aid, title: `Anime #${x.aid}` }));
 }
 
 export default async function Home(){
