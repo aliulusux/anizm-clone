@@ -114,5 +114,9 @@ a{color:inherit; text-decoration:none}
   background: rgba(255,255,255,.28);         /* a bit more visible on hover */
 }
 
-
+main.container {
+  background: rgba(255, 255, 255, 0.02);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+}
 

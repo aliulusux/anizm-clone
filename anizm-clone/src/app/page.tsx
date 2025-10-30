@@ -2,9 +2,6 @@ import { Suspense } from "react";
 import Header from "@/components/Header";
 import AnimeCard from "@/components/AnimeCard";
 import AuthGate from "@/components/AuthGate";
-import { getRelatedWithCovers } from "@/lib/jikan";
-
-export const dynamic = "force-dynamic";
 
 // 🔥 Fetch top anime (En Popüler)
 async function fetchHot(query?: string) {
@@ -14,7 +11,7 @@ async function fetchHot(query?: string) {
       ? `${base}/api/anidb/search?q=${encodeURIComponent(query)}`
       : `${base}/api/anidb/cmd`;
 
-    const res = await fetch(url, { next: { revalidate: 300 } });
+    const res = await fetch(url, { next: { revalidate: 300 } } as any);
     if (!res.ok) throw new Error("Failed to fetch anime list");
 
     const data = await res.json();
@@ -31,7 +28,7 @@ async function fetchSeasonal() {
   try {
     const res = await fetch(`${base}/api/anidb/season`, {
       next: { revalidate: 21600 }, // refresh every 6 hours
-    });
+    } as any);
     if (!res.ok) throw new Error("Failed to fetch seasonal anime list");
     const data = await res.json();
     return data.items || [];
@@ -40,6 +37,8 @@ async function fetchSeasonal() {
     return [];
   }
 }
+
+export const dynamic = "force-dynamic";
 
 export default async function Home({
   searchParams,
@@ -61,29 +60,40 @@ export default async function Home({
         <Header />
       </Suspense>
 
-      <main className="container">
-        <section className="glass" style={{ padding: "18px", marginBottom: 18 }}>
+      <main className="container mx-auto px-4 py-6 space-y-10">
+        <section className="glass p-4 rounded-2xl">
           <AuthGate />
         </section>
 
         {/* 🔍 Search Results */}
         {query ? (
-          <section className="glass" style={{ padding: "18px" }}>
-            <h2 style={{ margin: "6px 0 12px 0" }}>
+          <section className="glass p-4 rounded-2xl">
+            <h2 className="text-xl font-semibold mb-3">
               "{query}" için arama sonuçları
             </h2>
-            <div className="grid">
+            <div
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                         gap-4 place-items-center w-full max-w-7xl mx-auto px-2"
+            >
               {hot.length > 0 ? (
                 hot.map((a: any) => (
                   <AnimeCard
                     key={a.aid}
                     id={a.aid}
                     title={a.title}
-                    cover={a.images?.jpg?.large_image_url || a.images?.jpg?.image_url}
+                    cover={
+                      a.images?.jpg?.large_image_url ||
+                      a.images?.jpg?.image_url ||
+                      a.image
+                    }
+                    href={`/anime/${a.aid}`}
+                    score={a.score}
+                    episodes={a.episodes}
+                    year={a.year || a.aired?.prop?.from?.year}
                   />
                 ))
               ) : (
-                <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
+                <p className="text-white/70">Hiç anime bulunamadı 😔</p>
               )}
             </div>
           </section>
@@ -95,79 +105,63 @@ export default async function Home({
 
               <div
                 className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
-                          gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
+                            gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
               >
-                {animeList.map((a: any) => (
-                  <AnimeCard
-                    key={a.mal_id}
-                    id={a.mal_id}
-                    title={a.title}
-                    cover={
-                      a.images?.jpg?.large_image_url ||
-                      a.images?.jpg?.image_url ||
-                      `/api/cover?title=${encodeURIComponent(a.title)}&seed=${a.mal_id}`
-                    }
-                    href={`/anime/${a.mal_id}`}
-                    score={a.score}
-                    episodes={a.episodes}
-                    year={a.year || a.aired?.prop?.from?.year}
-                  />
-                ))}
+                {seasonalUnique.length > 0 ? (
+                  seasonalUnique.map((a: any) => (
+                    <AnimeCard
+                      key={a.aid}
+                      id={a.aid}
+                      title={a.title}
+                      cover={
+                        a.images?.jpg?.large_image_url ||
+                        a.images?.jpg?.image_url ||
+                        a.image ||
+                        `/api/cover?title=${encodeURIComponent(
+                          a.title
+                        )}&seed=${a.aid}`
+                      }
+                      href={`/anime/${a.aid}`}
+                      score={a.score}
+                      episodes={a.episodes}
+                      year={a.year || a.aired?.prop?.from?.year}
+                    />
+                  ))
+                ) : (
+                  <p className="text-white/70">
+                    Bu sezon için anime bulunamadı 😔
+                  </p>
+                )}
               </div>
             </section>
 
-            <script
-              dangerouslySetInnerHTML={{
-                __html: `
-                  const scroller = document.getElementById('season-carousel');
-                  let scrollPos = 0;
-                  setInterval(() => {
-                    if (!scroller) return;
-                    scrollPos += 200;
-                    if (scrollPos >= scroller.scrollWidth - scroller.clientWidth) {
-                      scrollPos = 0;
-                    }
-                    scroller.scrollTo({ left: scrollPos, behavior: 'smooth' });
-                  }, 2500);
-                `,
-              }}
-            />
-
             {/* 🔥 En Popüler */}
-            <section
-              className="glass"
-              style={{
-                padding: "24px 20px",
-                marginBottom: "32px",
-                overflow: "hidden",
-                borderRadius: "16px",
-              }}
-            >
-              <h2
-                style={{
-                  marginBottom: "16px",
-                  fontSize: "20px",
-                  fontWeight: 600,
-                }}
-              >
-                En Popüler
-              </h2>
+            <section className="space-y-4 mt-10">
+              <h2 className="text-xl font-semibold">En Popüler</h2>
 
               <div
-                className="grid"
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
-                  gap: "18px",
-                  justifyItems: "center",
-                }}
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                            gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
               >
                 {hot.length > 0 ? (
                   hot.map((a: any) => (
-                    <AnimeCard key={a.aid} id={a.aid} title={a.title} cover={a.image} />
+                    <AnimeCard
+                      key={a.aid}
+                      id={a.aid}
+                      title={a.title}
+                      cover={
+                        a.images?.jpg?.large_image_url ||
+                        a.images?.jpg?.image_url ||
+                        a.image
+                      }
+                      href={`/anime/${a.aid}`}
+                      score={a.score}
+                      episodes={a.episodes}
+                      year={a.year || a.aired?.prop?.from?.year}
+                    />
                   ))
                 ) : (
-                  <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
+                  <p className="text-white/70">Hiç anime bulunamadı 😔</p>
                 )}
               </div>
             </section>
