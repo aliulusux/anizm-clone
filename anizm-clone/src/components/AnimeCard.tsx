@@ -26,9 +26,9 @@ export default function AnimeCard({
 
   const card = (
     <div
-      className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur-md 
+      className="group relative overflow-hidden rounded-xl bg-white/5 backdrop-blur
                  border border-white/10 hover:border-white/20 transition-all cursor-pointer
-                 w-full max-w-[180px] mx-auto shadow-sm hover:shadow-lg hover:scale-[1.03]"
+                 w-full max-w-[140px] mx-auto shadow-sm hover:shadow-md hover:scale-[1.02]"
     >
       {/* Poster */}
       <div className="relative aspect-[2/3] w-full">
@@ -39,18 +39,15 @@ export default function AnimeCard({
           onError={() =>
             setImgSrc(`/api/cover?title=${encodeURIComponent(title)}&seed=${id}`)
           }
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.06]"
+          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.05]"
           loading="lazy"
         />
       </div>
 
-      {/* Dark overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-60 group-hover:opacity-80 transition-opacity" />
-
       {/* Hover Info */}
       <div
         className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 
-                   bg-black/70 backdrop-blur-sm text-white text-xs p-2 flex flex-col gap-1
+                   bg-black/70 backdrop-blur-sm text-white text-[10px] p-1.5 flex flex-col gap-[2px]
                    items-center transition-all duration-300 ease-out"
       >
         {score && (
@@ -71,8 +68,8 @@ export default function AnimeCard({
       </div>
 
       {/* Title */}
-      <div className="absolute bottom-0 left-0 right-0 p-2 text-center pointer-events-none">
-        <h3 className="line-clamp-2 text-xs sm:text-sm font-medium text-white drop-shadow-md">
+      <div className="absolute bottom-0 left-0 right-0 p-1.5 text-center pointer-events-none">
+        <h3 className="line-clamp-2 text-[11px] font-medium text-white drop-shadow-sm">
           {title}
         </h3>
       </div>
