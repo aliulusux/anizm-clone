@@ -27,7 +27,7 @@ async function fetchSeasonal() {
   const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
   try {
     const res = await fetch(`${base}/api/anidb/season`, {
-      next: { revalidate: 21600 }, // refresh every 6 hours
+      next: { revalidate: 21600 },
     } as any);
     if (!res.ok) throw new Error("Failed to fetch seasonal anime list");
     const data = await res.json();
@@ -49,10 +49,18 @@ export default async function Home({
   const hot = await fetchHot(query);
   const seasonal = !query ? await fetchSeasonal() : [];
 
-  // 🧩 Remove duplicates between seasonal and hot lists
   const seasonalUnique = seasonal.filter(
     (s: any) => !hot.some((h: any) => h.aid === s.aid)
   );
+
+  const getCover = (a: any) =>
+    a.images?.jpg?.large_image_url ||
+    a.images?.jpg?.image_url ||
+    a.picture ||
+    a.image ||
+    a.cover ||
+    a.coverImage ||
+    `/api/cover?title=${encodeURIComponent(a.title)}&seed=${a.aid}`;
 
   return (
     <div>
@@ -73,11 +81,8 @@ export default async function Home({
             </h2>
 
             <div
-              className="
-                grid
-                grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
-                gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]
-              "
+              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 
+                         gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]"
             >
               {hot.length > 0 ? (
                 hot.map((a: any, i: number) => (
@@ -92,11 +97,7 @@ export default async function Home({
                     <AnimeCard
                       id={a.aid}
                       title={a.title}
-                      cover={
-                        a.images?.jpg?.large_image_url ||
-                        a.images?.jpg?.image_url ||
-                        a.image
-                      }
+                      cover={getCover(a)}
                       href={`/anime/${a.aid}`}
                       score={a.score}
                       episodes={a.episodes}
@@ -116,11 +117,8 @@ export default async function Home({
               <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
 
               <div
-                className="
-                  grid
-                  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
-                  gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]
-                "
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 
+                           gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]"
               >
                 {seasonalUnique.length > 0 ? (
                   seasonalUnique.map((a: any, i: number) => (
@@ -135,14 +133,7 @@ export default async function Home({
                       <AnimeCard
                         id={a.aid}
                         title={a.title}
-                        cover={
-                          a.images?.jpg?.large_image_url ||
-                          a.images?.jpg?.image_url ||
-                          a.image ||
-                          `/api/cover?title=${encodeURIComponent(
-                            a.title
-                          )}&seed=${a.aid}`
-                        }
+                        cover={getCover(a)}
                         href={`/anime/${a.aid}`}
                         score={a.score}
                         episodes={a.episodes}
@@ -163,11 +154,8 @@ export default async function Home({
               <h2 className="text-xl font-semibold">En Popüler</h2>
 
               <div
-                className="
-                  grid
-                  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
-                  gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]
-                "
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 
+                           gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]"
               >
                 {hot.length > 0 ? (
                   hot.map((a: any, i: number) => (
@@ -182,11 +170,7 @@ export default async function Home({
                       <AnimeCard
                         id={a.aid}
                         title={a.title}
-                        cover={
-                          a.images?.jpg?.large_image_url ||
-                          a.images?.jpg?.image_url ||
-                          a.image
-                        }
+                        cover={getCover(a)}
                         href={`/anime/${a.aid}`}
                         score={a.score}
                         episodes={a.episodes}
