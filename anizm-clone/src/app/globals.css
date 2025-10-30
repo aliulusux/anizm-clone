@@ -32,6 +32,9 @@ a{color:inherit; text-decoration:none}
   justify-content: center;
   gap: 12px;
 }
+.grid > * {
+  flex: 0 0 auto;
+}
 .flex-wrap > * {
   flex: 0 0 auto;
 }

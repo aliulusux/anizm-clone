@@ -25,7 +25,7 @@ export default async function AnimePage({ params }: Params) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-6 space-y-10">
       {/* Hero */}
-      <div className="grid grid-cols-1 md:grid-cols-[240px,1fr] gap-6">
+      <div className="grid grid-cols-4 md:grid-cols-[240px,1fr] gap-6">
         <div className="relative overflow-hidden rounded-2xl border border-white/10">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={cover} alt={anime.title} className="w-full h-full object-cover" />
@@ -69,7 +69,7 @@ export default async function AnimePage({ params }: Params) {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Related</h2>
         {related.length ? (
-        <div className="flex flex-wrap justify-center gap-3 w-full max-w-6xl mx-auto px-2">
+        <div className="grid grid-cols-4 justify-center gap-3 w-full max-w-6xl mx-auto px-2">
           {related.map((r: any) => (
             <AnimeCard
               key={r.mal_id}
@@ -94,7 +94,7 @@ export default async function AnimePage({ params }: Params) {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Recommended</h2>
         {recs.length ? (
-          <div className="flex flex-wrap justify-center gap-3 w-full max-w-6xl mx-auto px-2">
+          <div className="grid grid-cols-4 justify-center gap-3 w-full max-w-6xl mx-auto px-2">
             {recs.map((r: any) => (
               <AnimeCard
                 key={r.mal_id}
