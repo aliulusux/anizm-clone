@@ -90,44 +90,29 @@ export default async function Home({
         ) : (
           <>
             {/* 🍂 Bu Sezon Popüler */}
-            <section
-              className="glass"
-              style={{
-                padding: "18px",
-                marginBottom: 18,
-                overflow: "hidden",
-                position: "relative",
-              }}
-            >
-              <h2 style={{ margin: "6px 12px 12px" }}>Bu Sezon Popüler</h2>
+            <section className="space-y-4">
+              <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
 
               <div
-                className="carousel"
-                style={{
-                  display: "flex",
-                  gap: "16px",
-                  overflowX: "hidden",
-                  scrollSnapType: "x mandatory",
-                  padding: "6px 4px 10px 4px",
-                  scrollBehavior: "smooth",
-                }}
-                id="season-carousel"
+                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                          gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
               >
-                {seasonalUnique.length > 0 ? (
-                  seasonalUnique.map((a: any) => (
-                    <div
-                      key={a.aid}
-                      style={{
-                        flex: "0 0 auto",
-                        scrollSnapAlign: "start",
-                      }}
-                    >
-                      <AnimeCard id={a.aid} title={a.title} cover={a.image} />
-                    </div>
-                  ))
-                ) : (
-                  <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
-                )}
+                {animeList.map((a: any) => (
+                  <AnimeCard
+                    key={a.mal_id}
+                    id={a.mal_id}
+                    title={a.title}
+                    cover={
+                      a.images?.jpg?.large_image_url ||
+                      a.images?.jpg?.image_url ||
+                      `/api/cover?title=${encodeURIComponent(a.title)}&seed=${a.mal_id}`
+                    }
+                    href={`/anime/${a.mal_id}`}
+                    score={a.score}
+                    episodes={a.episodes}
+                    year={a.year || a.aired?.prop?.from?.year}
+                  />
+                ))}
               </div>
             </section>
 
