@@ -80,6 +80,7 @@ async function getRelatedAnimeWithCovers(aid: number) {
         return null;
       }
     }
+    
 
     const withImages: any[] = [];
     for (const item of entries) {
