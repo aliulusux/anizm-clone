@@ -26,8 +26,8 @@ export default function AnimeCard({ id, title, cover, href }: Props) {
         />
         <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-70 transition" />
       </div>
-      <div className="p-3">
-        <h3 className="line-clamp-2 text-sm font-medium">{title}</h3>
+      <div className="p-2 text-center">
+        <h3 className="line-clamp-2 text-sx font-medium">{title}</h3>
       </div>
       <div className="absolute inset-0 ring-1 ring-white/10 group-hover:ring-white/30 rounded-2xl pointer-events-none" />
     </div>
