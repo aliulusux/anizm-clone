@@ -67,79 +67,29 @@ export default async function Home({
 
         {/* 🔍 Search Results */}
         {query ? (
-          <section className="glass p-4 rounded-2xl">
+          <section className="glass p-4 rounded-2xl animate-fadeIn">
             <h2 className="text-xl font-semibold mb-3">
               "{query}" için arama sonuçları
             </h2>
 
-            <div className="grid w-full max-w-6xl mx-auto px-4 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-                
+            <div
+              className="
+                grid
+                grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+                gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]
+              "
+            >
               {hot.length > 0 ? (
-                hot.map((a: any) => (
-                  <AnimeCard
+                hot.map((a: any, i: number) => (
+                  <div
                     key={a.aid}
-                    id={a.aid}
-                    title={a.title}
-                    cover={
-                      a.images?.jpg?.large_image_url ||
-                      a.images?.jpg?.image_url ||
-                      a.image
-                    }
-                    href={`/anime/${a.aid}`}
-                    score={a.score}
-                    episodes={a.episodes}
-                    year={a.year || a.aired?.prop?.from?.year}
-                  />
-                ))
-              ) : (
-                <p className="text-white/70">Hiç anime bulunamadı 😔</p>
-              )}
-            </div>
-          </section>
-        ) : (
-          <>
-            {/* 🍂 Bu Sezon Popüler */}
-            <section className="space-y-4">
-              <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
-
-            <div className="grid w-full max-w-6xl mx-auto px-4 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-                {seasonalUnique.length > 0 ? (
-                  seasonalUnique.map((a: any) => (
+                    className="opacity-0 animate-fadeIn"
+                    style={{
+                      animationDelay: `${i * 50}ms`,
+                      animationFillMode: "forwards",
+                    }}
+                  >
                     <AnimeCard
-                      key={a.aid}
-                      id={a.aid}
-                      title={a.title}
-                      cover={
-                        a.images?.jpg?.large_image_url ||
-                        a.images?.jpg?.image_url ||
-                        a.image ||
-                        `/api/cover?title=${encodeURIComponent(
-                          a.title
-                        )}&seed=${a.aid}`
-                      }
-                      href={`/anime/${a.aid}`}
-                      score={a.score}
-                      episodes={a.episodes}
-                      year={a.year || a.aired?.prop?.from?.year}
-                    />
-                  ))
-                ) : (
-                  <p className="text-white/70">
-                    Bu sezon için anime bulunamadı 😔
-                  </p>
-                )}
-              </div>
-            </section>
-
-            {/* 🔥 En Popüler */}
-            <section className="space-y-4 mt-10">
-              <h2 className="text-xl font-semibold">En Popüler</h2>
-
-            <div className="grid w-full max-w-6xl mx-auto px-4 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6">
-                {hot.length > 0 ? (
-                  hot.map((a: any) => (
-                    <AnimeCard
-                      key={a.aid}
                       id={a.aid}
                       title={a.title}
                       cover={
@@ -152,6 +102,97 @@ export default async function Home({
                       episodes={a.episodes}
                       year={a.year || a.aired?.prop?.from?.year}
                     />
+                  </div>
+                ))
+              ) : (
+                <p className="text-white/70">Hiç anime bulunamadı 😔</p>
+              )}
+            </div>
+          </section>
+        ) : (
+          <>
+            {/* 🍂 Bu Sezon Popüler */}
+            <section className="space-y-4 animate-fadeIn">
+              <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
+
+              <div
+                className="
+                  grid
+                  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+                  gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]
+                "
+              >
+                {seasonalUnique.length > 0 ? (
+                  seasonalUnique.map((a: any, i: number) => (
+                    <div
+                      key={a.aid}
+                      className="opacity-0 animate-fadeIn"
+                      style={{
+                        animationDelay: `${i * 50}ms`,
+                        animationFillMode: "forwards",
+                      }}
+                    >
+                      <AnimeCard
+                        id={a.aid}
+                        title={a.title}
+                        cover={
+                          a.images?.jpg?.large_image_url ||
+                          a.images?.jpg?.image_url ||
+                          a.image ||
+                          `/api/cover?title=${encodeURIComponent(
+                            a.title
+                          )}&seed=${a.aid}`
+                        }
+                        href={`/anime/${a.aid}`}
+                        score={a.score}
+                        episodes={a.episodes}
+                        year={a.year || a.aired?.prop?.from?.year}
+                      />
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-white/70">
+                    Bu sezon için anime bulunamadı 😔
+                  </p>
+                )}
+              </div>
+            </section>
+
+            {/* 🔥 En Popüler */}
+            <section className="space-y-4 mt-10 animate-fadeIn">
+              <h2 className="text-xl font-semibold">En Popüler</h2>
+
+              <div
+                className="
+                  grid
+                  grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+                  gap-6 w-full max-w-6xl mx-auto px-4 auto-rows-[260px]
+                "
+              >
+                {hot.length > 0 ? (
+                  hot.map((a: any, i: number) => (
+                    <div
+                      key={a.aid}
+                      className="opacity-0 animate-fadeIn"
+                      style={{
+                        animationDelay: `${i * 50}ms`,
+                        animationFillMode: "forwards",
+                      }}
+                    >
+                      <AnimeCard
+                        id={a.aid}
+                        title={a.title}
+                        cover={
+                          a.images?.jpg?.large_image_url ||
+                          a.images?.jpg?.image_url ||
+                          a.image
+                        }
+                        href={`/anime/${a.aid}`}
+                        score={a.score}
+                        episodes={a.episodes}
+                        year={a.year || a.aired?.prop?.from?.year}
+                      />
+                    </div>
                   ))
                 ) : (
                   <p className="text-white/70">Hiç anime bulunamadı 😔</p>
