@@ -72,8 +72,8 @@ export default async function Home({
               "{query}" için arama sonuçları
             </h2>
             <div
-              className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
-                         gap-4 place-items-center w-full max-w-7xl mx-auto px-2"
+              className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                        gap-3 place-items-center w-full max-w-6xl mx-auto px-4"
             >
               {hot.length > 0 ? (
                 hot.map((a: any) => (
@@ -103,10 +103,10 @@ export default async function Home({
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
 
-              <div
-                className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
-                            gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
-              >
+            <div
+              className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                        gap-3 place-items-center w-full max-w-6xl mx-auto px-4"
+            >
                 {seasonalUnique.length > 0 ? (
                   seasonalUnique.map((a: any) => (
                     <AnimeCard
@@ -140,8 +140,8 @@ export default async function Home({
               <h2 className="text-xl font-semibold">En Popüler</h2>
 
               <div
-                className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
-                            gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
+                className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                          gap-3 place-items-center w-full max-w-6xl mx-auto px-4"
               >
                 {hot.length > 0 ? (
                   hot.map((a: any) => (
