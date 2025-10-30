@@ -77,9 +77,9 @@ export default async function Home({
                 hot.map((a: any) => (
                   <AnimeCard
                     key={a.aid}
-                    aid={a.aid}
+                    id={a.aid}
                     title={a.title}
-                    image={a.images?.jpg?.large_image_url || a.images?.jpg?.image_url}
+                    cover={a.images?.jpg?.large_image_url || a.images?.jpg?.image_url}
                   />
                 ))
               ) : (
@@ -122,7 +122,7 @@ export default async function Home({
                         scrollSnapAlign: "start",
                       }}
                     >
-                      <AnimeCard aid={a.aid} title={a.title} image={a.image} />
+                      <AnimeCard id={a.aid} title={a.title} cover={a.image} />
                     </div>
                   ))
                 ) : (
@@ -179,7 +179,7 @@ export default async function Home({
               >
                 {hot.length > 0 ? (
                   hot.map((a: any) => (
-                    <AnimeCard key={a.aid} aid={a.aid} title={a.title} image={a.image} />
+                    <AnimeCard key={a.aid} id={a.aid} title={a.title} cover={a.image} />
                   ))
                 ) : (
                   <p style={{ opacity: 0.7 }}>Hiç anime bulunamadı 😔</p>
