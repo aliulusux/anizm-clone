@@ -72,7 +72,7 @@ export default async function Home({
               "{query}" için arama sonuçları
             </h2>
             <div
-              className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+              className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
                          gap-4 place-items-center w-full max-w-7xl mx-auto px-2"
             >
               {hot.length > 0 ? (
@@ -104,7 +104,7 @@ export default async function Home({
               <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
 
               <div
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
                             gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
               >
                 {seasonalUnique.length > 0 ? (
@@ -140,7 +140,7 @@ export default async function Home({
               <h2 className="text-xl font-semibold">En Popüler</h2>
 
               <div
-                className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
+                className="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7
                             gap-4 place-items-center w-full max-w-7xl mx-auto px-4"
               >
                 {hot.length > 0 ? (
