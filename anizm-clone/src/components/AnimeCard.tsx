@@ -75,11 +75,14 @@ export default function AnimeCard({
     </div>
   );
 
-  return href ? (
-    <Link href={href} prefetch={false}>
-      {card}
-    </Link>
-  ) : (
-    card
-  );
-}
+return href ? (
+  <Link
+    href={href}
+    prefetch={false}
+    className="block w-fit"
+  >
+    {card}
+  </Link>
+) : (
+  card
+);

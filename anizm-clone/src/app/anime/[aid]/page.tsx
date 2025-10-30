@@ -69,17 +69,24 @@ export default async function AnimePage({ params }: Params) {
       <section className="space-y-4">
         <h2 className="text-xl font-semibold">Related</h2>
         {related.length ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-6 gap-3">
-            {related.map((r: any) => (
-              <AnimeCard
-                key={`rel-${r.mal_id}`}
-                id={r.mal_id}
-                title={r.title}
-                cover={r.cover}
-                href={`/anime/${r.mal_id}`}
-              />
-            ))}
-          </div>
+        <div className="flex flex-wrap justify-center gap-3 w-full max-w-6xl mx-auto px-2">
+          {animeList.map((a: any) => (
+            <AnimeCard
+              key={a.mal_id}
+              id={a.mal_id}
+              title={a.title}
+              cover={
+                a.images?.jpg?.large_image_url ||
+                a.images?.jpg?.image_url ||
+                `/api/cover?title=${encodeURIComponent(a.title)}&seed=${a.mal_id}`
+              }
+              href={`/anime/${a.mal_id}`}
+              score={a.score}
+              episodes={a.episodes}
+              year={a.year || a.aired?.prop?.from?.year}
+            />
+          ))}
+        </div>
         ) : (
           <LoadingGrid count={12} />
         )}
