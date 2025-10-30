@@ -11,7 +11,7 @@ type Props = {
   href?: string;
 };
 
-export default function AnimeCard({ aid, title, cover, href }: Props) {
+export default function AnimeCard({ id, title, cover, href }: Props) {
   const [imgSrc, setImgSrc] = useState(cover);
   const card = (
     <div className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:border-white/20 transition">
