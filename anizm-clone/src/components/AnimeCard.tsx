@@ -28,10 +28,11 @@ export default function AnimeCard({
     <div
       className="group relative overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm
                  border border-white/10 hover:border-white/20 transition-all cursor-pointer
-                 w-[120px] mx-auto shadow-sm hover:shadow-md hover:scale-[1.02]"
+                 w-[110px] mx-1 my-2 shadow-sm hover:shadow-md hover:scale-[1.02]"
     >
       {/* Poster */}
-      <div className="relative aspect-[2/3] w-full">
+      <div className="relative aspect-[2/3]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imgSrc}
           alt={title}
@@ -46,7 +47,7 @@ export default function AnimeCard({
       {/* Hover Info */}
       <div
         className="absolute inset-x-0 bottom-0 translate-y-full group-hover:translate-y-0 
-                   bg-black/75 backdrop-blur text-white text-[10px] p-1.5 flex flex-col gap-[1px]
+                   bg-black/70 backdrop-blur text-white text-[9px] py-1 flex flex-col gap-[1px]
                    items-center transition-all duration-300 ease-out"
       >
         {score && (
@@ -67,7 +68,7 @@ export default function AnimeCard({
       </div>
 
       {/* Title */}
-      <div className="p-1 text-center text-[10px] text-white line-clamp-2 font-medium">
+      <div className="p-1 text-center text-[9px] text-white line-clamp-2 font-medium leading-tight">
         {title}
       </div>
     </div>
