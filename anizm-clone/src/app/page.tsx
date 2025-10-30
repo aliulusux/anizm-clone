@@ -53,14 +53,15 @@ export default async function Home({
     (s: any) => !hot.some((h: any) => h.aid === s.aid)
   );
 
-  const getCover = (a: any) =>
-    a.images?.jpg?.large_image_url ||
-    a.images?.jpg?.image_url ||
-    a.picture ||
-    a.image ||
-    a.cover ||
-    a.coverImage ||
-    `/api/cover?title=${encodeURIComponent(a.title)}&seed=${a.aid}`;
+const getCover = (a: any) =>
+  a.images?.jpg?.large_image_url ||
+  a.images?.jpg?.image_url ||
+  a.picture ||
+  a.image ||
+  a.cover ||
+  a.coverImage ||
+  `/api/cover?title=${encodeURIComponent(a.title)}&seed=${a.aid}`;
+
 
   return (
     <div>
