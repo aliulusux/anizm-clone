@@ -28,10 +28,10 @@ export default function AnimeCard({
     <div
       className="group relative overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm
                  border border-white/10 hover:border-white/20 transition-all cursor-pointer
-                 w-full max-w-[110px] mx-auto shadow-sm"
+                 w-[120px] mx-auto shadow-sm hover:shadow-md hover:scale-[1.02]"
     >
       {/* Poster */}
-      <div className="relative w-full max-h-[50px]">
+      <div className="relative aspect-[2/3] w-full">
         <img
           src={imgSrc}
           alt={title}

@@ -72,9 +72,7 @@ export default async function Home({
               "{query}" için arama sonuçları
             </h2>
 
-              <div
-                className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mx-auto px-4"
-              >
+            <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mx-auto px-4">
                 
               {hot.length > 0 ? (
                 hot.map((a: any) => (
@@ -104,9 +102,7 @@ export default async function Home({
             <section className="space-y-4">
               <h2 className="text-xl font-semibold">Bu Sezon Popüler</h2>
 
-              <div
-                className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mx-auto px-4"
-              >
+            <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mx-auto px-4">
 
                 {seasonalUnique.length > 0 ? (
                   seasonalUnique.map((a: any) => (
@@ -140,9 +136,7 @@ export default async function Home({
             <section className="space-y-4 mt-10">
               <h2 className="text-xl font-semibold">En Popüler</h2>
 
-              <div
-                className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mx-auto px-4"
-              >
+            <div className="flex flex-wrap justify-center gap-4 w-full max-w-6xl mx-auto px-4">
                 {hot.length > 0 ? (
                   hot.map((a: any) => (
                     <AnimeCard
