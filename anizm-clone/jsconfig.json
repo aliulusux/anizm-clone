@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node", "next", "next/types/global"],
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

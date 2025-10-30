@@ -1,79 +1,39 @@
-import Link from "next/link";
+// src/components/AnimeCard.tsx
+"use client";
 import Image from "next/image";
+import Link from "next/link";
+import { useState } from "react";
 
-export default function AnimeCard({
-  aid,
-  title,
-  image,
-}: {
-  aid: string | number;
+type Props = {
+  id: number;
   title: string;
-  image?: string;
-}) {
-  return (
-    <Link
-      href={`/anime/${aid}`}
-      className="anime-card"
-      style={{
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: 12,
-        overflow: "hidden",
-        background: "rgba(255,255,255,0.05)",
-        textDecoration: "none",
-        color: "inherit",
-        width: "160px",
-        minWidth: "160px",
-      }}
-    >
-      <div
-        className="glass"
-        style={{
-          width: "100%",
-          aspectRatio: "3 / 4", // makes consistent proportions
-          overflow: "hidden",
-          borderBottom: "1px solid rgba(255,255,255,0.1)",
-          borderRadius: "12px 12px 0 0",
-        }}
-      >
-        <Image
-          src={image}
+  cover: string;
+  href?: string;
+};
+
+export default function AnimeCard({ id, title, cover, href }: Props) {
+  const [imgSrc, setImgSrc] = useState(cover);
+  const card = (
+    <div className="group relative overflow-hidden rounded-2xl bg-white/5 backdrop-blur border border-white/10 hover:border-white/20 transition">
+      <div className="relative w-full aspect-[2/3]">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={imgSrc}
           alt={title}
-          width={300}
-          height={400}
-          style={{
-            objectFit: "cover",
-            width: "100%",
-            height: "100%",
-            borderRadius: "12px 12px 0 0",
-          }}
+          onError={() => setImgSrc(`/api/cover?title=${encodeURIComponent(title)}&seed=${id}`)}
+          className="absolute inset-0 h-full w-full object-cover group-hover:scale-[1.03] transition-transform"
+          loading="lazy"
         />
-          <div
-            style={{
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              opacity: 0.6,
-              fontSize: 13,
-            }}
-          >
-            Görsel Yok
-          </div>
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-60 group-hover:opacity-70 transition" />
       </div>
-      <div style={{ padding: 10 }}>
-        <p
-          style={{
-            fontWeight: 600,
-            whiteSpace: "nowrap",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-          }}
-        >
-          {title}
-        </p>
-        <p style={{ opacity: 0.6, fontSize: 12 }}>AID {aid}</p>
+      <div className="p-3">
+        <h3 className="line-clamp-2 text-sm font-medium">{title}</h3>
       </div>
-    </Link>
+      <div className="absolute inset-0 ring-1 ring-white/10 group-hover:ring-white/30 rounded-2xl pointer-events-none" />
+    </div>
   );
+
+  return href ? (
+    <Link href={href} prefetch={false} className="block">{card}</Link>
+  ) : card;
 }

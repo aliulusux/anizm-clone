@@ -1,64 +1,103 @@
-// lib/jikan.ts
-type JikanRelationEntry = { mal_id: number; type?: string; name?: string };
-type JikanRelation = { relation: string; entry: JikanRelationEntry[] };
+// src/lib/jikan.ts
 
-const RELATION_ALLOW = new Set([
-  "Sequel",
-  "Prequel",
-  "Parent story",
-  "Side story",
-  "Alternative version",
-  "Alternative setting",
-  "Summary",
-  "Spin-off",
-]);
+const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-export async function getRelatedAnimeWithCovers(aid: number) {
-  try {
-    // 1) Fetch relations
-    const relRes = await fetch(`https://api.jikan.moe/v4/anime/${aid}/relations`, {
-      cache: "no-store",
-    });
-    if (!relRes.ok) return [];
+type Img = { jpg?: { image_url?: string; large_image_url?: string } };
 
-    const relJson = (await relRes.json()) as { data?: JikanRelation[] };
-    const relations = Array.isArray(relJson.data) ? relJson.data : [];
+function pickImage(images?: Img) {
+  return (
+    images?.jpg?.large_image_url ||
+    images?.jpg?.image_url ||
+    null
+  );
+}
 
-    // 2) Pick only allowed relation types and flatten to entries
-    const entries = relations
-      .filter((r) => RELATION_ALLOW.has(r.relation))
-      .flatMap((r) => r.entry)
-      .filter((e) => (e.type || "").toLowerCase() === "anime");
+export function coverFallbackUrl(title: string, seed?: string) {
+  const p = new URLSearchParams({ title, seed: seed || String(title.length) });
+  return `${BASE}/api/cover?${p.toString()}`;
+}
 
-    // 3) Dedupe IDs and cap how many we fetch (avoid rate-limits)
-    const ids = Array.from(new Set(entries.map((e) => e.mal_id))).slice(0, 12);
+// ----------------------- MAIN FETCHERS -----------------------
 
-    // 4) Fetch minimal info for each related anime
-    const items: { aid: number; title: string; image?: string | null }[] = [];
-    for (const id of ids) {
-      const d = await fetch(`https://api.jikan.moe/v4/anime/${id}`, {
-        // cache cover/title for a day – relations don’t change often
-        next: { revalidate: 86400 },
-      }).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+export async function getAnime(aid: string | number) {
+  const r = await fetch(`https://api.jikan.moe/v4/anime/${aid}/full`, {
+    next: { revalidate: 300 },
+  } as any);
+  if (!r.ok) throw new Error("anime fetch failed");
+  const { data } = await r.json();
+  return data;
+}
 
-      const data = d?.data;
-      if (!data) continue;
+export async function getEpisodes(aid: string | number, page = 1) {
+  const r = await fetch(
+    `https://api.jikan.moe/v4/anime/${aid}/episodes?page=${page}`,
+    { next: { revalidate: 300 } } as any
+  );
+  if (!r.ok) throw new Error("episodes fetch failed");
+  const j = await r.json();
+  return j.data ?? [];
+}
 
+// ----------------------- RELATIONS -----------------------
+
+export async function getRelatedWithCovers(aid: string | number) {
+  const r = await fetch(`https://api.jikan.moe/v4/anime/${aid}/relations`, {
+    next: { revalidate: 600 },
+  } as any);
+  if (!r.ok) return [];
+  const j = await r.json();
+
+  const items: any[] = [];
+  (j.data || []).forEach((rel: any) => {
+    (rel.entry || []).forEach((e: any) => {
       items.push({
-        aid: data.mal_id,
-        title: data.title || data.title_english || data.title_japanese || "Unknown",
-        image:
-          data.images?.webp?.image_url ||
-          data.images?.jpg?.image_url ||
-          null,
+        mal_id: e.mal_id,
+        title: e.name,
+        images: e.images,
       });
+    });
+  });
 
-      // If you ever hit “429 Too Many Requests”, uncomment this small delay:
-      // await new Promise(res => setTimeout(res, 400));
-    }
+  return items.map((it) => {
+    const img = pickImage(it.images);
+    return {
+      mal_id: it.mal_id,
+      title: it.title,
+      cover: img || coverFallbackUrl(it.title, String(it.mal_id)),
+    };
+  });
+}
 
-    return items;
-  } catch {
-    return [];
-  }
+// ----------------------- RECOMMENDATIONS -----------------------
+
+export async function getRecommendations(aid: string | number) {
+  const r = await fetch(
+    `https://api.jikan.moe/v4/anime/${aid}/recommendations`,
+    { next: { revalidate: 600 } } as any
+  );
+  if (!r.ok) return [];
+  const j = await r.json();
+  return (j.data || []).map((x: any) => {
+    const a = x.entry;
+    const img = pickImage(a?.images);
+    return {
+      mal_id: a?.mal_id,
+      title: a?.title,
+      cover: img || coverFallbackUrl(a?.title || "Unknown", String(a?.mal_id)),
+    };
+  });
+}
+
+// ----------------------- TRAILER -----------------------
+
+export async function getTrailer(aid: string | number) {
+  const r = await fetch(`https://api.jikan.moe/v4/anime/${aid}/videos`, {
+    next: { revalidate: 600 },
+  } as any);
+  if (!r.ok) return null;
+  const j = await r.json();
+  const yt =
+    j?.data?.promo?.[0]?.trailer?.youtube_id ||
+    j?.data?.music_videos?.[0]?.video?.youtube_id;
+  return yt ? `https://www.youtube.com/embed/${yt}` : null;
 }
