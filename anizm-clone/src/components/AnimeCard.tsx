@@ -26,9 +26,10 @@ export default function AnimeCard({
 
   const card = (
     <div
+      style={{ width: "120px" }}
       className="group relative overflow-hidden rounded-lg bg-white/5 backdrop-blur-sm
-                 border border-white/10 hover:border-white/20 transition-all cursor-pointer
-                 w-[110px] mx-1 my-2 shadow-sm hover:shadow-md hover:scale-[1.02]"
+                border border-white/10 hover:border-white/20 transition-all cursor-pointer
+                mx-1 my-2 shadow-sm hover:shadow-md hover:scale-[1.02]"
     >
       {/* Poster */}
       <div className="relative aspect-[2/3]">
