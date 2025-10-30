@@ -40,7 +40,7 @@ export default function AnimeCard({
           onError={() =>
             setImgSrc(`/api/cover?title=${encodeURIComponent(title)}&seed=${id}`)
           }
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.05]"
+          className="w-[150px] h-[220px] object-cover rounded-lg transition-transform duration-300 group-hover:scale-105"
           loading="lazy"
         />
       </div>
