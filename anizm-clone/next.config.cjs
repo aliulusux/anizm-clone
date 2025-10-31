@@ -1,10 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  output: "standalone",
+  reactStrictMode: true,
   experimental: {
     serverActions: false,
   },
-  output: "standalone",
-  reactStrictMode: true,
+  // ✅ Add this line:
+  dynamicParams: true,
+  // ✅ Disable static export
+  outputFileTracing: false,
 };
 
 module.exports = nextConfig;
