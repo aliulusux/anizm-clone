@@ -31,34 +31,46 @@ const translationMap = {
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const raw = decodeURIComponent(searchParams.get("genre") || "")
-      .toLowerCase()
-      .trim();
+
+    // ✅ Accept both ?genre= and ?slug=
+    const raw =
+      decodeURIComponent(searchParams.get("genre") || searchParams.get("slug") || "")
+        .toLowerCase()
+        .trim();
+
     const page = searchParams.get("page") || 1;
+    const limit = searchParams.get("limit") || 24;
 
     const genreId = genreMap[raw];
-    let data = [];
-    let pagination = {};
 
+    // 🧩 If no genre match, fallback to top anime
     if (!genreId) {
       console.warn(`⚠️ No genre found for "${raw}", showing top anime fallback.`);
-      const topRes = await fetch(`https://api.jikan.moe/v4/top/anime?limit=24`);
+      const topRes = await fetch(`https://api.jikan.moe/v4/top/anime?limit=${limit}`);
       const topData = await topRes.json();
-      data = topData.data || [];
-      pagination = topData.pagination || {};
-    } else {
-      const res = await fetch(
-        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&page=${page}&order_by=score&sort=desc`
-      );
-      const json = await res.json();
-      data = json.data || [];
-      pagination = json.pagination || {};
+
+      return Response.json({
+        items: topData.data || [],
+        pagination: topData.pagination || {},
+      });
     }
 
-    // ✅ Always return "items" to match GenrePage.jsx expectations
-    return Response.json({ items: data, pagination });
+    // ✅ Fetch from Jikan API
+    const res = await fetch(
+      `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=${limit}&page=${page}&order_by=score&sort=desc`
+    );
+
+    if (!res.ok) throw new Error(`Jikan API failed for genre ID ${genreId}`);
+
+    const data = await res.json();
+
+    // ✅ Return exactly what frontend expects
+    return Response.json({
+      items: data.data || [],
+      pagination: data.pagination || {},
+    });
   } catch (err) {
     console.error("Genre API error:", err);
-    return Response.json({ items: [], pagination: {} }, { status: 500 });
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
