@@ -48,3 +48,8 @@ body {
 .glass {
   @apply backdrop-blur-xl bg-white/30 dark:bg-white/10 border border-white/20;
 }
+
+.motion-page {
+  @apply relative transition-all duration-700 ease-in-out;
+  @apply shadow-lg dark:shadow-purple-900/30;
+}

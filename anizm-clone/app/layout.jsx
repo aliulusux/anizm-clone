@@ -8,17 +8,17 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
   title: "Anime Stream – Jikan + Next.js",
-  description: "Tranimeci-style anime streaming catalog with Jikan API.",
+  description: "Tranimeci-style anime streaming platform built with Next.js and Jikan API",
 };
 
 export default function RootLayout({ children }) {
   return (
     <html lang="tr">
       <body className={inter.className}>
-        {/* 🔥 Global route progress bar */}
+        {/* 🔥 Global progress bar */}
         <TopLoader />
 
-        {/* 🌈 Global fade transition for all pages */}
+        {/* 🌈 Global animated page transition */}
         <PageTransition>{children}</PageTransition>
       </body>
     </html>

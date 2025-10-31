@@ -1,12 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    remotePatterns: [
-      { protocol: 'https', hostname: 'cdn.myanimelist.net' },
-      { protocol: 'https', hostname: 'api-cdn.myanimelist.net' }
-    ]
+  experimental: {
+    serverActions: false,
   },
-  experimental: { optimizePackageImports: ['framer-motion'] }
+  output: "standalone",
+  reactStrictMode: true,
 };
 
-export default nextConfig;
+module.exports = nextConfig;
