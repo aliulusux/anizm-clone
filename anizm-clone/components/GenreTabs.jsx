@@ -9,12 +9,12 @@ export default function GenreTabs() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  /*const genres = [
+  const genres = [
     { key: "action", label: "Aksiyon" },
     { key: "romance", label: "Romantik" },
     { key: "comedy", label: "Komedi" },
     { key: "fantasy", label: "Fantastik" },
-  ];*/
+  ];
 
   useEffect(() => {
     async function load() {
