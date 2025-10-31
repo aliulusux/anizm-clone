@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 
+
+
 const genres = [
   "Aksiyon", "Askeri", "Bilim Kurgu", "Büyü", "Doğaüstü Güçler", "Dram", "Dövüş",
   "Ecchi", "Fantastik", "Gerilim", "Gizem", "Harem", "Josei", "Komedi", "Korku",
