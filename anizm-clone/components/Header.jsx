@@ -11,9 +11,7 @@ export default function Header() {
 
       <nav className="flex items-center gap-6">
         <a href="/" className="hover:text-orange-400 transition">Anasayfa</a>
-        <button className="ml-2 p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition">
-          🌙
-        </button>
+        <ThemeToggle />
       </nav>
     </header>
   );
