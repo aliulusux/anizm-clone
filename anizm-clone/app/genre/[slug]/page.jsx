@@ -38,19 +38,37 @@ export default function GenrePage({ params }) {
   };
 
   return (
-    <main className="flex flex-col items-center justify-center py-12 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">
+    <main className="relative flex flex-col items-center justify-center py-12 px-4 overflow-hidden">
+      {/* 🩵 Animated background layer */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={page + "-bg"}
+          initial={{ opacity: 0, filter: "blur(12px)" }}
+          animate={{ opacity: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, filter: "blur(12px)" }}
+          transition={{ duration: 0.5, ease: "easeInOut" }}
+          className="
+            absolute inset-0
+            bg-gradient-to-b from-white/40 to-white/70
+            dark:from-gray-900/70 dark:to-gray-950/90
+            backdrop-blur-3xl
+            -z-10
+          "
+        />
+      </AnimatePresence>
+
+      <h1 className="text-3xl font-bold mb-6 text-center z-10">
         <span className="text-orange-500 capitalize">{genre}</span> Animeleri
       </h1>
-      <p className="text-gray-500 dark:text-gray-400 mb-8 text-center">
+      <p className="text-gray-500 dark:text-gray-400 mb-8 text-center z-10">
         Bu türdeki animeleri keşfet!
       </p>
 
-      {/* AnimatePresence for smooth page container transition */}
+      {/* ✨ Glass container with cinematic animation */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={page} // triggers re-animation when page changes
-          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          key={page}
+          initial={{ opacity: 0, scale: 0.96, y: 30 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: -20 }}
           transition={{ duration: 0.45, ease: "easeInOut" }}
@@ -58,11 +76,12 @@ export default function GenrePage({ params }) {
             w-full max-w-7xl 
             rounded-3xl 
             p-6 sm:p-10 
-            backdrop-blur-xl 
+            backdrop-blur-2xl 
             bg-white/60 dark:bg-gray-900/50
             border border-white/30 dark:border-white/10
-            shadow-[0_8px_32px_rgba(0,0,0,0.1)]
+            shadow-[0_8px_40px_rgba(0,0,0,0.15)]
             relative
+            overflow-hidden
           "
         >
           {/* Back button */}
@@ -128,7 +147,7 @@ export default function GenrePage({ params }) {
             </div>
           )}
 
-          {/* Pagination Arrows + Animated Page Number */}
+          {/* Pagination */}
           <div className="flex justify-center items-center gap-8 mt-10">
             <button
               onClick={() => goToPage(page - 1)}
