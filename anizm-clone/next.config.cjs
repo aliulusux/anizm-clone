@@ -1,4 +1,6 @@
 /** @type {import('next').NextConfig} */
+console.log("✅ Next.js config loaded successfully!");
+
 const nextConfig = {
   reactStrictMode: true,
   images: {
@@ -7,7 +9,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "cdn.myanimelist.net",
         port: "",
-        pathname: "/**", // allow all paths
+        pathname: "/**",
       },
     ],
     formats: ["image/webp", "image/avif"],
