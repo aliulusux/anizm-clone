@@ -53,9 +53,10 @@ export default function AnimeGrid({ animeList = [] }) {
                 }
                 alt={anime.title || "Anime Cover"}
                 fill
-                unoptimized={false}
+                priority={false}
                 className="object-cover transition-transform duration-500 group-hover:scale-110"
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 160px"
+                unoptimized={false}
               />
             </div>
             <div className="p-2 bg-black/40 text-white/90 text-sm truncate">

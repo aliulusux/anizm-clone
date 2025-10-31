@@ -9,25 +9,35 @@ export default function GenreTabs() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const genres = [
+  /*const genres = [
     { key: "action", label: "Aksiyon" },
     { key: "romance", label: "Romantik" },
     { key: "comedy", label: "Komedi" },
     { key: "fantasy", label: "Fantastik" },
-  ];
+  ];*/
 
   useEffect(() => {
     async function load() {
-      setLoading(true);
-      const res = await fetch(
-        `https://api.jikan.moe/v4/anime?genres=${genre}&limit=20`
-      );
-      const d = await res.json();
-      setData(d.data || []);
-      setLoading(false);
+        setLoading(true);
+
+        // Map genre key → numeric Jikan ID
+        const genreMap = {
+        action: 1,
+        romance: 22,
+        comedy: 4,
+        fantasy: 10,
+        };
+
+        const genreId = genreMap[genre] || 1; // fallback to action
+        const res = await fetch(
+        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=20`
+        );
+        const d = await res.json();
+        setData(d.data || []);
+        setLoading(false);
     }
     load();
-  }, [genre]);
+    }, [genre]);
 
   return (
     <section className="space-y-4">
