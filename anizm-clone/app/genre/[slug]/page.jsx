@@ -16,7 +16,7 @@ export default function GenrePage({ params }) {
     async function fetchGenre() {
       try {
         setLoading(true);
-        const res = await fetch(`/api/jikan/genre?genre=${genreSlug}`);
+        const res = await fetch(`/api/jikan/genre?genre=${params.slug}`);
         const data = await res.json();
         setAnimeList(data.items || []);
       } catch (err) {
