@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
+import Header from "@/components/Header";
 
 // 🌈 Define aura colors for each genre
 const genreAuras = {
@@ -156,8 +157,24 @@ export default function GenrePage({ params }) {
             </div>
           )}
 
-          {/* 🌟 Modern Pagination */}
-            <div className="flex justify-center items-center gap-2 mt-10 select-none">
+          {/* 🌊 Floating Cinematic Pagination */}
+            <motion.div
+            initial={{ opacity: 0, y: 50 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 50 }}
+            transition={{ duration: 0.6, ease: "easeInOut" }}
+            className="
+                fixed bottom-6 left-1/2 -translate-x-1/2
+                flex justify-center items-center gap-2
+                backdrop-blur-xl border
+                bg-white/40 dark:bg-gray-900/60 border-white/20
+                rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.25)]
+                px-4 py-3 sm:px-6 sm:py-4
+                z-50
+                transition-all duration-300
+            "
+            >
+            {/* Previous button */}
             <button
                 onClick={() => goToPage(page - 1)}
                 disabled={page <= 1}
@@ -184,8 +201,8 @@ export default function GenrePage({ params }) {
                     className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200
                         ${
                         num === page
-                            ? "bg-gradient-to-r from-cyan-400 to-sky-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.5)] scale-105"
-                            : "bg-white/50 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-cyan-400/30 hover:text-white"
+                            ? "bg-gradient-to-r from-cyan-400 to-sky-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.6)] scale-105"
+                            : "bg-white/60 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-cyan-400/30 hover:text-white"
                         }
                     `}
                     >
@@ -208,6 +225,7 @@ export default function GenrePage({ params }) {
                 return null;
             })}
 
+            {/* Next button */}
             <button
                 onClick={() => goToPage(page + 1)}
                 disabled={page >= pageCount}
@@ -218,7 +236,8 @@ export default function GenrePage({ params }) {
             >
                 →
             </button>
-            </div>
+            </motion.div>
+
         </motion.div>
       </AnimatePresence>
     </main>
