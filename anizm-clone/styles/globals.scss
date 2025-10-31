@@ -5,6 +5,7 @@
 :root {
   --glass-bg: 255 255 255 / 0.6;
   --glass-border: 255 255 255 / 0.4;
+  --glow-color: rgba(255, 140, 0, 0.45); /* Light theme - orange glow */
 }
 
 html.dark {
@@ -77,5 +78,8 @@ body {
 
 .fade-up {
   animation: fadeUp 0.6s ease-out;
+}
+.dark {
+  --glow-color: rgba(0, 200, 255, 0.45); /* Dark theme - cyan glow */
 }
 

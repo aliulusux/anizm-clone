@@ -4,37 +4,113 @@ import Link from "next/link";
 
 
 
-const genres = [
+/*const genres = [
   "Aksiyon", "Askeri", "Bilim Kurgu", "Büyü", "Doğaüstü Güçler", "Dram", "Dövüş",
   "Ecchi", "Fantastik", "Gerilim", "Gizem", "Harem", "Josei", "Komedi", "Korku",
   "Macera", "Mecha", "Film", "Müzik", "OVA", "Okul", "Oyun", "Psikolojik", "Romantizm",
   "Seinen", "Shoujo", "Shoujo Ai", "Shounen", "Shounen Ai", "Yaşamdan Kesitler", "Spor",
   "Süper Güç", "Tarihi", "Uzay", "Vampir", "Yaoi", "Yuri", "Polisiye", "Samuray",
   "Parodi", "Şeytanlar", "Savaş Sanatları", "Çocuk", "Ona", "Arabalar", "Kişilik Bölünmesi"
-];
+];*/
 
-export default function GenreFooter() {
+export default function Footer() {
   return (
-    <footer className="py-16 bg-gradient-to-b from-background/60 to-background/90 border-t border-white/10 backdrop-blur-md mt-20">
-      <div className="max-w-6xl mx-auto px-6">
-        <h2 className="text-2xl font-bold mb-6 text-center text-white/90">Anime Türleri</h2>
+    <footer
+      className="
+        mt-10
+        rounded-2xl
+        mx-auto
+        max-w-6xl
+        py-10 px-6
+        text-center text-sm
+        backdrop-blur-md
+        transition-all duration-500
+        shadow-inner
+        border border-white/10 dark:border-white/5
+        bg-gradient-to-b 
+        from-white/70 via-white/50 to-white/30
+        dark:from-gray-900/80 dark:via-gray-800/70 dark:to-gray-900/60
+        text-gray-800 dark:text-gray-300
+      "
+    >
+      <h2 className="text-xl font-semibold mb-6">Anime Türleri</h2>
 
-        <div className="flex flex-wrap justify-center gap-3">
-          {genres.map((genre, i) => (
-            <Link
-              key={i}
-              href={`/genre/${encodeURIComponent(genre.toLowerCase())}`}
-              className="px-4 py-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-sm text-white/80 hover:text-white transition-all duration-300"
-            >
-              {genre}
-            </Link>
-          ))}
-        </div>
-
-        <p className="text-center text-xs mt-10 text-white/40">
-          © 2025 Tranimeci-style — Tüm hakları saklıdır.
-        </p>
+      <div className="flex flex-wrap justify-center gap-3">
+        {[
+          "Aksiyon",
+          "Askeri",
+          "Bilim Kurgu",
+          "Büyü",
+          "Doğaüstü Güçler",
+          "Dram",
+          "Dövüş",
+          "Ecchi",
+          "Fantastik",
+          "Gerilim",
+          "Gizem",
+          "Harem",
+          "Josei",
+          "Komedi",
+          "Korku",
+          "Macera",
+          "Mecha",
+          "Film",
+          "Müzik",
+          "OVA",
+          "Okul",
+          "Oyun",
+          "Psikolojik",
+          "Romantizm",
+          "Seinen",
+          "Shoujo",
+          "Shoujo Ai",
+          "Shounen",
+          "Shounen Ai",
+          "Yaşamdan Kesitler",
+          "Spor",
+          "Süper Güç",
+          "Tarihi",
+          "Uzay",
+          "Vampir",
+          "Yaoi",
+          "Yuri",
+          "Polisiye",
+          "Samuray",
+          "Parodi",
+          "Şeytanlar",
+          "Savaş Sanatları",
+          "Çocuk",
+          "Ona",
+          "Arabalar",
+          "Kişilik Bölünmesi",
+        ].map((genre) => (
+          <a
+            key={genre}
+            href={`/genre/${genre.toLowerCase()}`}
+            className="
+              px-4 py-1.5 rounded-full
+              border border-gray-400/30 dark:border-white/10
+              hover:border-transparent
+              hover:scale-105
+              transition-all duration-300
+              font-medium
+              text-gray-700 dark:text-gray-300
+              hover:text-white dark:hover:text-black
+              hover:shadow-[0_0_15px_var(--glow-color)]
+              relative
+            "
+            style={{
+              "--glow-color": "rgba(255,165,0,0.4)",
+            }}
+          >
+            {genre}
+          </a>
+        ))}
       </div>
+
+      <p className="mt-8 opacity-70">
+        © 2025 <span className="font-semibold">Tranimeci–style</span> — Tüm hakları saklıdır.
+      </p>
     </footer>
   );
 }
