@@ -4,10 +4,10 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
-import AnimeGrid from "@/components/AnimeGrid";
 import GenreTabs from "@/components/GenreTabs";
 import LoaderLayout from "@/components/LoaderLayout";
 import SkeletonGrid from "@/components/SkeletonGrid";
+import AnimeCarousel from "@/components/AnimeCarousel"; // 👈 new import
 
 export default function HomePage() {
   const [animeList, setAnimeList] = useState([]);
@@ -31,6 +31,7 @@ export default function HomePage() {
 
   return (
     <main className="container py-8 space-y-10">
+      {/* 🌐 Header */}
       <Header />
 
       {/* 🔍 Search */}
@@ -39,14 +40,14 @@ export default function HomePage() {
         <SearchBar />
       </section>
 
-      {/* 🔥 Top Anime */}
+      {/* 🔥 Top Anime (Now Carousel) */}
       <section className="space-y-4">
         <h2 className="grid-title">En Popüler Animeler</h2>
         {loading ? (
           <SkeletonGrid count={16} />
         ) : (
           <LoaderLayout count={16}>
-            <AnimeGrid animeList={animeList} />
+            <AnimeCarousel animeList={animeList} />
           </LoaderLayout>
         )}
       </section>

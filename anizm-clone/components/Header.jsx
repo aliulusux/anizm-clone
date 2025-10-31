@@ -3,19 +3,20 @@ import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
-    <header className="mb-6">
-      <div className="glass p-4 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-orange-500 to-amber-400" />
-          <span className="text-lg font-semibold">Tranimeci-style</span>
-        </Link>
-        <nav className="flex gap-4 text-sm">
-          <Link href="/" className="opacity-80 hover:opacity-100">Anasayfa</Link>
-          <Link href="/search" className="opacity-80 hover:opacity-100">Ara</Link>
-          <ThemeToggle />
-          <a href="https://docs.api.jikan.moe" target="_blank" className="opacity-80 hover:opacity-100">Jikan API</a>
-        </nav>
+    <header className="flex items-center justify-between px-8 py-4 rounded-2xl glass mt-6">
+      <div className="flex items-center gap-3">
+        <span className="w-3 h-3 bg-orange-400 rounded-full"></span>
+        <h1 className="text-lg font-semibold">Tranimeci-style</h1>
       </div>
+
+      <nav className="flex items-center gap-6">
+        <a href="/" className="hover:text-orange-400 transition">Anasayfa</a>
+        <a href="/search" className="hover:text-orange-400 transition">Ara</a>
+        <a href="https://docs.api.jikan.moe/" target="_blank" className="hover:text-orange-400 transition">Jikan API</a>
+        <button className="ml-2 p-2 bg-gray-700 rounded-full hover:bg-gray-600 transition">
+          🌙
+        </button>
+      </nav>
     </header>
   );
 }
