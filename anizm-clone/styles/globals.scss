@@ -19,6 +19,9 @@ html.dark {
   }
 }
 
+motion-div {
+  @apply transition-colors duration-500;
+}
 
 html, body {
   height: 100%;
