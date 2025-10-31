@@ -5,11 +5,17 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "cdn.myanimelist.net",
-        pathname: "/images/**",
+        port: "",
+        pathname: "/images/anime/**",
       },
     ],
   },
-  reactStrictMode: true,
+  // Optional — keeps your dynamic routes from caching incorrectly
+  experimental: {
+    serverActions: {
+      bodySizeLimit: "2mb",
+    },
+  },
 };
 
 module.exports = nextConfig;
