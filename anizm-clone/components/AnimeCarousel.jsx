@@ -1,165 +1,107 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+
+import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { useEffect, useRef, useState, memo } from "react";
 
-export default function GenrePage({ params }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+function AnimeCarousel({ animeList = [] }) {
+  if (!animeList?.length) return null;
 
-  const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [pageCount, setPageCount] = useState(1);
+  const repeated = [...animeList, ...animeList];
+  const controls = useAnimation();
+  const containerRef = useRef(null);
+  const [paused, setPaused] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const initialized = useRef(false);
 
-  const genre = decodeURIComponent(params.slug).replace(/-/g, " ");
-  const page = parseInt(searchParams.get("page") || "1");
+  const DURATION = Math.max(30, animeList.length * 2);
+  const WIDTH_PERCENT = 50;
+
+  const startSliding = async (offset = 0) => {
+    await controls.start({
+      x: [`-${offset}%`, `-${WIDTH_PERCENT + offset}%`],
+      transition: {
+        ease: "linear",
+        duration: DURATION * (1 - offset / WIDTH_PERCENT),
+        repeat: Infinity,
+      },
+    });
+  };
 
   useEffect(() => {
-    async function loadGenre() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/jikan/genre?genre=${genre}&page=${page}`);
-        const data = await res.json();
-        setAnimeList(data.data || []);
-        setPageCount(data.pagination?.last_visible_page || 1);
-      } catch (err) {
-        console.error("Genre load error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadGenre();
-  }, [genre, page]);
+    if (initialized.current) return;
+    initialized.current = true;
+    startSliding(progress);
+  }, []);
 
-  const goToPage = (num) => {
-    if (num < 1 || num > pageCount) return;
-    router.push(`/genre/${params.slug}?page=${num}`);
+  const handlePause = () => {
+    if (!containerRef.current) return;
+    const style = window.getComputedStyle(containerRef.current);
+    const matrix = new DOMMatrixReadOnly(style.transform);
+    const currentX = matrix.m41;
+    const width = containerRef.current.scrollWidth / 2;
+    const percent = (-currentX / width) * 50;
+    setProgress(percent % WIDTH_PERCENT);
+    controls.stop();
+    setPaused(true);
+  };
+
+  const handleResume = () => {
+    if (paused) {
+      setPaused(false);
+      startSliding(progress);
+    }
   };
 
   return (
-    <main className="flex flex-col items-center justify-center py-12 px-4">
-      <h1 className="text-3xl font-bold mb-6 text-center">
-        <span className="text-orange-500 capitalize">{genre}</span> Animeleri
-      </h1>
-      <p className="text-gray-500 dark:text-gray-400 mb-8 text-center">
-        Bu türdeki animeleri keşfet!
-      </p>
+    <div
+      className="relative overflow-hidden py-6 select-none"
+      onMouseEnter={handlePause}
+      onMouseLeave={handleResume}
+    >
 
-      {/* Glass container */}
-      <div
-        className="
-          w-full max-w-7xl 
-          rounded-3xl 
-          p-6 sm:p-10 
-          backdrop-blur-xl 
-          bg-white/60 dark:bg-gray-900/50
-          border border-white/30 dark:border-white/10
-          shadow-[0_8px_32px_rgba(0,0,0,0.1)]
-          relative
-        "
-      >
-        {/* Back button */}
-        <button
-          onClick={() => router.back()}
-          className="
-            absolute -left-8 top-1/2 transform -translate-y-1/2
-            bg-gradient-to-r from-gray-200 to-white dark:from-gray-800 dark:to-gray-700
-            text-gray-800 dark:text-white
-            rounded-full p-3 shadow-md hover:scale-110 transition
-            border border-white/40
-          "
+      <div className="relative">
+        <motion.div
+          ref={containerRef}
+          className="flex gap-6 mask-gradient"
+          animate={controls}
         >
-          ←
-        </button>
-
-        {/* Anime Grid */}
-        {loading ? (
-          <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
-        ) : animeList.length === 0 ? (
-          <div className="text-center py-20 text-gray-500">
-            Bu türde anime bulunamadı.
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {animeList.map((anime) => (
-              <div
-                key={anime.mal_id}
-                onClick={() => router.push(`/anime/${anime.mal_id}`)}
-                className="
-                  group cursor-pointer overflow-hidden rounded-2xl
-                  bg-white/30 dark:bg-white/10 
-                  backdrop-blur-md 
-                  transition-all duration-300 
-                  hover:scale-[1.04] hover:shadow-[0_0_20px_rgba(0,200,255,0.4)]
-                "
-              >
-                <div className="relative aspect-[3/4] overflow-hidden">
-                  <Image
-                    src={
-                      anime.images?.jpg?.large_image_url ||
-                      anime.images?.jpg?.image_url
-                    }
-                    alt={anime.title}
-                    width={300}
-                    height={400}
-                    className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-                    unoptimized
-                  />
-                </div>
-                <div className="p-2 text-center">
-                  <p className="text-gray-800 dark:text-gray-200 text-sm font-medium truncate">
-                    {anime.title}
-                  </p>
-                  <div className="flex items-center justify-center text-yellow-400 text-xs mt-1">
-                    ⭐ {anime.score || "N/A"}
-                  </div>
+          {repeated.map((anime, index) => (
+            <Link
+              key={`${anime.mal_id}-${index}`}
+              href={`/anime/${anime.mal_id}`}
+              className="flex-shrink-0 w-40 sm:w-48 md:w-56 cursor-pointer"
+            >
+              <div className="relative rounded-xl overflow-hidden shadow-md hover:scale-105 transition-transform duration-300">
+                <Image
+                  src={
+                    anime.images?.jpg?.large_image_url ||
+                    anime.images?.jpg?.image_url
+                  }
+                  alt={anime.title}
+                  width={250}
+                  height={350}
+                  className="w-full h-72 object-cover"
+                  unoptimized
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/65 p-2 text-sm text-white">
+                  <p className="truncate">{anime.title}</p>
+                  <span className="opacity-75 text-xs">
+                    ⭐ {anime.score ?? "?"}
+                  </span>
                 </div>
               </div>
-            ))}
-          </div>
-        )}
+            </Link>
+          ))}
+        </motion.div>
 
-        {/* Pagination Arrows + Animated Page Number */}
-        <div className="flex justify-center items-center gap-8 mt-10">
-          <button
-            onClick={() => goToPage(page - 1)}
-            disabled={page <= 1}
-            className={`px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
-              page <= 1
-                ? "opacity-30 cursor-not-allowed"
-                : "hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)]"
-            } bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200`}
-          >
-            ←
-          </button>
-
-          <AnimatePresence mode="wait">
-            <motion.span
-              key={page}
-              initial={{ opacity: 0, y: 10, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.9 }}
-              transition={{ duration: 0.35, ease: "easeInOut" }}
-              className="px-5 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/30 text-gray-800 dark:text-gray-200 font-semibold shadow-inner backdrop-blur-md"
-            >
-              {page}
-            </motion.span>
-          </AnimatePresence>
-
-          <button
-            onClick={() => goToPage(page + 1)}
-            disabled={page >= pageCount}
-            className={`px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
-              page >= pageCount
-                ? "opacity-30 cursor-not-allowed"
-                : "hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)]"
-            } bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200`}
-          >
-            →
-          </button>
-        </div>
+        {/* Gradient edges that adapt to theme */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-background via-transparent to-background opacity-70" />
       </div>
-    </main>
+    </div>
   );
 }
+
+// 🧊 Prevent re-renders when theme changes
+export default memo(AnimeCarousel);

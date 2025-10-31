@@ -1,19 +1,18 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import AnimeGrid from "@/components/AnimeGrid";
-import SkeletonGrid from "@/components/SkeletonGrid";
+import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GenrePage({ params }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageCount, setPageCount] = useState(1);
 
-  const genre = decodeURIComponent(params.slug)
-    .replace(/-/g, " ")
-    .trim();
+  const genre = decodeURIComponent(params.slug).replace(/-/g, " ");
   const page = parseInt(searchParams.get("page") || "1");
 
   useEffect(() => {
@@ -24,8 +23,8 @@ export default function GenrePage({ params }) {
         const data = await res.json();
         setAnimeList(data.data || []);
         setPageCount(data.pagination?.last_visible_page || 1);
-      } catch (e) {
-        console.error("Genre load error:", e);
+      } catch (err) {
+        console.error("Genre load error:", err);
       } finally {
         setLoading(false);
       }
@@ -34,43 +33,142 @@ export default function GenrePage({ params }) {
   }, [genre, page]);
 
   const goToPage = (num) => {
+    if (num < 1 || num > pageCount) return;
     router.push(`/genre/${params.slug}?page=${num}`);
   };
 
   return (
-    <main className="container py-10 space-y-8 fade-in">
-      <h1 className="text-center text-3xl font-bold">
-        <span className="text-orange-400 capitalize">{genre}</span> Animeleri
+    <main className="flex flex-col items-center justify-center py-12 px-4">
+      <h1 className="text-3xl font-bold mb-6 text-center">
+        <span className="text-orange-500 capitalize">{genre}</span> Animeleri
       </h1>
-      <p className="text-center text-gray-400 mb-4">
+      <p className="text-gray-500 dark:text-gray-400 mb-8 text-center">
         Bu türdeki animeleri keşfet!
       </p>
 
-      {loading ? (
-        <SkeletonGrid count={24} />
-      ) : (
-        <AnimeGrid animeList={animeList} />
-      )}
+      {/* AnimatePresence for smooth page container transition */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={page} // triggers re-animation when page changes
+          initial={{ opacity: 0, scale: 0.96, y: 20 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.96, y: -20 }}
+          transition={{ duration: 0.45, ease: "easeInOut" }}
+          className="
+            w-full max-w-7xl 
+            rounded-3xl 
+            p-6 sm:p-10 
+            backdrop-blur-xl 
+            bg-white/60 dark:bg-gray-900/50
+            border border-white/30 dark:border-white/10
+            shadow-[0_8px_32px_rgba(0,0,0,0.1)]
+            relative
+          "
+        >
+          {/* Back button */}
+          <button
+            onClick={() => router.back()}
+            className="
+              absolute -left-8 top-1/2 transform -translate-y-1/2
+              bg-gradient-to-r from-gray-200 to-white dark:from-gray-800 dark:to-gray-700
+              text-gray-800 dark:text-white
+              rounded-full p-3 shadow-md hover:scale-110 transition
+              border border-white/40
+            "
+          >
+            ←
+          </button>
 
-      {/* Pagination */}
-      <div className="flex justify-center items-center gap-2 mt-10">
-        {[...Array(pageCount > 5 ? 5 : pageCount)].map((_, i) => {
-          const num = i + 1;
-          return (
+          {/* Anime Grid */}
+          {loading ? (
+            <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
+          ) : animeList.length === 0 ? (
+            <div className="text-center py-20 text-gray-500">
+              Bu türde anime bulunamadı.
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+              {animeList.map((anime) => (
+                <motion.div
+                  key={anime.mal_id}
+                  whileHover={{ scale: 1.04 }}
+                  transition={{ type: "spring", stiffness: 250, damping: 20 }}
+                  onClick={() => router.push(`/anime/${anime.mal_id}`)}
+                  className="
+                    group cursor-pointer overflow-hidden rounded-2xl
+                    bg-white/30 dark:bg-white/10 
+                    backdrop-blur-md 
+                    transition-all duration-300 
+                    hover:shadow-[0_0_20px_rgba(0,200,255,0.4)]
+                  "
+                >
+                  <div className="relative aspect-[3/4] overflow-hidden">
+                    <Image
+                      src={
+                        anime.images?.jpg?.large_image_url ||
+                        anime.images?.jpg?.image_url
+                      }
+                      alt={anime.title}
+                      width={300}
+                      height={400}
+                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                      unoptimized
+                    />
+                  </div>
+                  <div className="p-2 text-center">
+                    <p className="text-gray-800 dark:text-gray-200 text-sm font-medium truncate">
+                      {anime.title}
+                    </p>
+                    <div className="flex items-center justify-center text-yellow-400 text-xs mt-1">
+                      ⭐ {anime.score || "N/A"}
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination Arrows + Animated Page Number */}
+          <div className="flex justify-center items-center gap-8 mt-10">
             <button
-              key={num}
-              onClick={() => goToPage(num)}
-              className={`px-3 py-1.5 rounded-md border transition-all ${
-                num === page
-                  ? "bg-orange-500 border-orange-400 text-white"
-                  : "bg-transparent border-gray-600 hover:bg-gray-700"
-              }`}
+              onClick={() => goToPage(page - 1)}
+              disabled={page <= 1}
+              className={`px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
+                page <= 1
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)]"
+              } bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200`}
             >
-              {num}
+              ←
             </button>
-          );
-        })}
-      </div>
+
+            <AnimatePresence mode="wait">
+              <motion.span
+                key={page}
+                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                transition={{ duration: 0.35, ease: "easeInOut" }}
+                className="px-5 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/30 text-gray-800 dark:text-gray-200 font-semibold shadow-inner backdrop-blur-md"
+              >
+                {page}
+              </motion.span>
+            </AnimatePresence>
+
+            <button
+              onClick={() => goToPage(page + 1)}
+              disabled={page >= pageCount}
+              className={`px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
+                page >= pageCount
+                  ? "opacity-30 cursor-not-allowed"
+                  : "hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)]"
+              } bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200`}
+            >
+              →
+            </button>
+          </div>
+        </motion.div>
+      </AnimatePresence>
     </main>
   );
 }
