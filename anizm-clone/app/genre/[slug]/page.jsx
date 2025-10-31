@@ -9,7 +9,7 @@ export default function GenrePage({ params }) {
   const router = useRouter();
   const [animeList, setAnimeList] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [notFound, setNotFound] = useState(false);
+  const [fallbackMode, setFallbackMode] = useState(false);
 
   const genre = decodeURIComponent(params.slug)
     .replace(/-/g, " ")
@@ -20,30 +20,28 @@ export default function GenrePage({ params }) {
     async function fetchGenre() {
       try {
         setLoading(true);
-        setNotFound(false);
+        setFallbackMode(false);
 
-        // 🎯 Fetch anime for selected genre
+        // 🎯 Fetch anime by genre
         const res = await fetch(`/api/jikan/genre?genre=${genre}`);
         const data = await res.json();
 
         if (data.items && data.items.length > 0) {
           setAnimeList(data.items);
         } else {
-          console.warn(`No anime found for genre "${genre}". Loading fallback...`);
+          console.warn(`No anime found for "${genre}", loading top anime fallback...`);
 
           // 🪄 Fallback: fetch top anime
-          const resTop = await fetch(`/api/jikan/top?limit=12`);
+          const resTop = await fetch(`/api/jikan/top?limit=24`);
           const dataTop = await resTop.json();
 
           if (dataTop.items && dataTop.items.length > 0) {
             setAnimeList(dataTop.items);
-          } else {
-            setNotFound(true);
+            setFallbackMode(true);
           }
         }
       } catch (err) {
         console.error("Genre fetch error:", err);
-        setNotFound(true);
       } finally {
         setLoading(false);
       }
@@ -54,7 +52,7 @@ export default function GenrePage({ params }) {
 
   return (
     <main className="container py-10 space-y-8 fade-in">
-      {/* Back Button */}
+      {/* ⬅️ Back Button */}
       <button
         onClick={() => router.back()}
         className="glass px-4 py-2 rounded-full hover:bg-white/10 transition text-sm font-medium"
@@ -62,20 +60,26 @@ export default function GenrePage({ params }) {
         ← Geri Dön
       </button>
 
-      {/* Genre Title */}
+      {/* 🏷️ Title */}
       <div className="glass mx-auto max-w-3xl p-8 rounded-3xl text-center backdrop-blur-md shadow-xl border border-white/10 fade-up">
         <h1 className="text-3xl font-bold">
           <span className="capitalize">{genre}</span>{" "}
           <span className="text-orange-400">Animeleri</span>
         </h1>
-        {notFound && (
+
+        {fallbackMode ? (
           <p className="text-sm mt-2 text-gray-400">
-            Bu türde anime bulunamadı 😔
+            Bu türde anime bulunamadı. <br />
+            En popüler animeler gösteriliyor 👇
+          </p>
+        ) : (
+          <p className="text-sm mt-2 text-gray-400">
+            {loading ? "Yükleniyor..." : "Bu türdeki animeleri keşfet!"}
           </p>
         )}
       </div>
 
-      {/* Anime Grid */}
+      {/* 🎬 Anime List */}
       {loading ? (
         <SkeletonGrid count={16} />
       ) : animeList.length > 0 ? (
