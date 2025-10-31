@@ -1,15 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
         protocol: "https",
         hostname: "cdn.myanimelist.net",
-        pathname: "/images/anime/**",
+        port: "",
+        pathname: "/**", // allow all paths
       },
     ],
+    formats: ["image/webp", "image/avif"],
   },
-  reactStrictMode: true,
 };
 
 module.exports = nextConfig;
