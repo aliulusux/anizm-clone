@@ -41,9 +41,6 @@ export async function GET(req) {
       });
 
       return Response.json({ items: data.data, pagination: data.pagination });
-
-    // ✅ Always return items for GenrePage.jsx
-    return Response.json({ items: data.data, pagination: data.pagination });
   } catch (err) {
     console.error("Genre API error:", err);
     return Response.json({ items: [], pagination: {} }, { status: 500 });
