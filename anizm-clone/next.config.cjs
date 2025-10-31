@@ -1,14 +1,19 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
-  reactStrictMode: true,
-  experimental: {
-    serverActions: false,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "cdn.myanimelist.net", // ✅ Jikan images come from here
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.myanimelist.net",
+        pathname: "/images/**", // ✅ allow all anime images
+      },
+    ],
   },
-  // ✅ Add this line:
-  dynamicParams: true,
-  // ✅ Disable static export
-  outputFileTracing: false,
+  reactStrictMode: true,
 };
 
 module.exports = nextConfig;
