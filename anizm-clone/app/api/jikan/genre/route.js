@@ -1,118 +1,72 @@
-import { NextResponse } from "next/server";
-export const dynamic = "force-dynamic"; // ✅ Fixes the build error
+export const dynamic = "force-dynamic";
 
-/**
- * Normalizes Turkish/English slugs.
- */
-function normalizeSlug(str = "") {
-  return str
-    .toLowerCase()
-    .replace(/ğ/g, "g")
-    .replace(/ü/g, "u")
-    .replace(/ş/g, "s")
-    .replace(/ı/g, "i")
-    .replace(/ö/g, "o")
-    .replace(/ç/g, "c")
-    .replace(/\s+/g, "")
-    .replace(/[^a-z0-9]/g, "");
-}
-
-/**
- * ✅ Full Turkish-to-Jikan genre map
- * (covers every genre from your footer)
- */
-const genreMap = {
-  // 🎭 Common genres
+// 🔠 Map Turkish genre names to Jikan numeric genre IDs
+const GENRE_MAP = {
   aksiyon: 1,
   macera: 2,
   komedi: 4,
-  drama: 8,
   dram: 8,
+  drama: 8,
+  büyü: 16,
   fantastik: 10,
+  "doğaüstü güçler": 37,
+  doğaüstü: 37,
+  gizem: 7,
+  gerilim: 41,
   korku: 14,
+  bilim: 24,
+  "bilim kurgu": 24,
+  "savaş sanatları": 17,
+  askeri: 38,
   romantik: 22,
   romantizm: 22,
   psikolojik: 40,
-  bilimkurgu: 24,
-  scifi: 24,
-  tarihi: 13,
-  tarih: 13,
-  süpergüçler: 31,
-  dovus: 17,
-  mecha: 18,
-  müzik: 19,
-  okul: 23,
-  oyun: 11,
-  ecchi: 9,
-  harem: 35,
-  gizem: 7,
-  sliceoflife: 36,
-  yasamdankesitler: 36,
-  parodi: 20,
-  çocuk: 15,
-  askeri: 38,
-  arabalar: 3,
-  polisiye: 39,
-
-  // 🌌 Extras
-  uzay: 29,
-  vampire: 32,
-  vampir: 32,
-  samuray: 21,
-  sporgucu: 30,
   spor: 30,
-  büyü: 16,
-  doğaüstügüçler: 37,
-
-  // ❤️‍🔥 Demographics
+  okul: 23,
+  müzik: 19,
+  seinen: 42,
   shounen: 27,
   shoujo: 25,
-  seinen: 42,
   josei: 43,
-
-  // 💕 Romance + Relationships
-  yaoi: 33,
-  yuri: 34,
-  shoujoai: 26,
-  shounenai: 28,
-
-  // 👻 Misc themes
-  okulhayati: 23,
-  mücadele: 17,
-  superpower: 31,
-  savaşsanatlari: 6,
+  mecha: 18,
+  oyun: 11,
+  uzay: 29,
+  vampir: 32,
+  tarih: 13,
+  tarihi: 13,
+  çocuk: 15,
   parodi: 20,
-  oyunbaz: 11,
-  çocuklar: 15,
+  polisiye: 39,
+  "süper güç": 31,
+  "yaşamdan kesitler": 36,
 };
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const raw = searchParams.get("genre")?.toLowerCase() || "";
+    const raw = decodeURIComponent(searchParams.get("genre") || "")
+      .toLowerCase()
+      .trim();
 
     const genreId = GENRE_MAP[raw];
 
-    // 🧠 Fallback if no match found
     if (!genreId) {
-      console.warn(`⚠️ No anime found for "${raw}", loading top anime fallback...`);
+      console.warn(`⚠️ No Jikan genre found for "${raw}". Showing top anime.`);
       const topRes = await fetch("https://api.jikan.moe/v4/top/anime?limit=24");
       const topData = await topRes.json();
       return Response.json({ items: topData.data });
     }
 
-    // ✅ Fetch by ID
     const res = await fetch(
-      `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&order_by=score&sort=desc`,
-      { next: { revalidate: 300 } }
+      `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&order_by=score&sort=desc`
     );
 
-    if (!res.ok) throw new Error("Genre fetch failed");
+    if (!res.ok) throw new Error("Failed to fetch genre data");
 
     const data = await res.json();
     return Response.json({ items: data.data });
   } catch (err) {
     console.error("Genre API error:", err);
-    return Response.json({ error: "Failed to fetch genre anime" }, { status: 500 });
+    return Response.json({ error: err.message }, { status: 500 });
   }
 }
