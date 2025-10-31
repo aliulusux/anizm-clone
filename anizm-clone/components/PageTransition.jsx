@@ -11,9 +11,9 @@ export default function PageTransition({ children }) {
   const pathname = usePathname();
 
   const variants = {
-    initial: { opacity: 0, x: 60, y: 10, scale: 0.98 },
-    enter: { opacity: 1, x: 0, y: 0, scale: 1 },
-    exit: { opacity: 0, x: -60, y: -10, scale: 0.98 },
+    initial: { opacity: 0, scale: 0.98 },
+    enter: { opacity: 1, scale: 1 },
+    exit: { opacity: 0, scale: 0.98 },
   };
 
   return (
