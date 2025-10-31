@@ -31,28 +31,34 @@ const translationMap = {
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const rawGenre = decodeURIComponent(searchParams.get("genre") || "")
+    const raw = decodeURIComponent(searchParams.get("genre") || "")
       .toLowerCase()
       .trim();
-
     const page = searchParams.get("page") || 1;
 
-    const translated = translationMap[rawGenre] || rawGenre;
-    const genreId = genreMap[translated];
+    const genreId = genreMap[raw];
+    let data = [];
+    let pagination = {};
+
     if (!genreId) {
       console.warn(`⚠️ No genre found for "${raw}", showing top anime fallback.`);
       const topRes = await fetch(`https://api.jikan.moe/v4/top/anime?limit=24`);
       const topData = await topRes.json();
-      return Response.json({ data: topData.data, pagination: topData.pagination });
+      data = topData.data || [];
+      pagination = topData.pagination || {};
+    } else {
+      const res = await fetch(
+        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&page=${page}&order_by=score&sort=desc`
+      );
+      const json = await res.json();
+      data = json.data || [];
+      pagination = json.pagination || {};
     }
 
-    const res = await fetch(
-      `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&page=${page}&order_by=score&sort=desc`
-    );
-    const data = await res.json();
-    return Response.json({ data: data.data, pagination: data.pagination });
+    // ✅ Always return "items" to match GenrePage.jsx expectations
+    return Response.json({ items: data, pagination });
   } catch (err) {
     console.error("Genre API error:", err);
-    return Response.json({ error: err.message }, { status: 500 });
+    return Response.json({ items: [], pagination: {} }, { status: 500 });
   }
 }
