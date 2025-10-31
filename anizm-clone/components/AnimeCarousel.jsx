@@ -3,13 +3,14 @@
 import { motion, useAnimation } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 
 export default function AnimeCarousel({ animeList = [] }) {
-  const repeated = [...animeList, ...animeList]; // double for infinite loop
+  if (!animeList?.length) return null;
+
+  const repeated = [...animeList, ...animeList];
   const controls = useAnimation();
   const [paused, setPaused] = useState(false);
-  const carouselRef = useRef(null);
 
   useEffect(() => {
     if (!paused) {
@@ -22,48 +23,58 @@ export default function AnimeCarousel({ animeList = [] }) {
         },
       });
     } else {
-      controls.stop(); // pauses animation
+      controls.stop();
     }
   }, [paused, controls]);
 
   return (
-    <section
-      className="relative overflow-hidden w-full py-6 select-none"
-      ref={carouselRef}
+    <div
+      className="relative overflow-hidden py-6 select-none"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
     >
-      <h2 className="text-2xl font-bold mb-6 px-4">En Popüler Animeler</h2>
+      {/* ✅ Single Title */}
+      <h2 className="text-2xl font-bold mb-6 px-2 md:px-4">
+        En Popüler Animeler
+      </h2>
 
-      <motion.div
-        className="flex gap-6 carousel-mask"
-        animate={controls}
-        initial={{ x: 0 }}
-      >
-        {repeated.map((anime, index) => (
-          <Link
-            key={`${anime.mal_id}-${index}`}
-            href={`/anime/${anime.mal_id}`}
-            className="flex-shrink-0 w-44 sm:w-48 md:w-56 cursor-pointer"
-          >
-            <div className="relative overflow-hidden rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
-              <Image
-                src={anime.images?.jpg?.large_image_url}
-                alt={anime.title}
-                width={240}
-                height={340}
-                className="w-full h-72 object-cover"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/60 text-white px-2 py-1 text-sm">
-                <p className="truncate">{anime.title}</p>
-                <span className="text-xs opacity-80">
-                  ⭐ {anime.score || "?"}
-                </span>
+      {/* 🌀 Sliding Track */}
+      <div className="relative">
+        <motion.div
+          className="flex gap-6 mask-gradient carousal-mask"
+          animate={controls}
+          initial={{ x: 0 }}
+        >
+          {repeated.map((anime, index) => (
+            <Link
+              key={`${anime.mal_id}-${index}`}
+              href={`/anime/${anime.mal_id}`}
+              className="flex-shrink-0 w-40 sm:w-48 md:w-56 cursor-pointer"
+            >
+              <div className="relative rounded-xl overflow-hidden shadow-md hover:scale-105 transition-transform duration-300">
+                {/* ✅ Fix cover disappearing (force layout & aspect ratio) */}
+                <Image
+                  src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url}
+                  alt={anime.title}
+                  width={250}
+                  height={350}
+                  className="w-full h-72 object-cover"
+                  unoptimized
+                />
+                <div className="absolute bottom-0 left-0 right-0 bg-black/65 p-2 text-sm text-white">
+                  <p className="truncate">{anime.title}</p>
+                  <span className="opacity-75 text-xs">
+                    ⭐ {anime.score ?? "?"}
+                  </span>
+                </div>
               </div>
-            </div>
-          </Link>
-        ))}
-      </motion.div>
-    </section>
+            </Link>
+          ))}
+        </motion.div>
+
+        {/* ✨ Fade effect on edges */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#f9fafb] via-transparent to-[#f9fafb]" />
+      </div>
+    </div>
   );
 }
