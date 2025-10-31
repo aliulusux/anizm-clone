@@ -48,9 +48,6 @@ export default async function GenrePage({ params, searchParams }) {
       {/* Glassy anime container */}
       <section className="mx-auto mt-10 max-w-6xl rounded-3xl border border-white/10 bg-white/5 backdrop-blur-lg p-8
                 shadow-[0_0_25px_rgba(255,255,255,0.1)]
-                hover:shadow-[0_0_35px_rgba(59,130,246,0.5)]
-                hover:border-blue-400/50
-                transition-all duration-500 ease-out transform hover:-translate-y-1"
         >
         {items.length > 0 ? (
           <AnimeGrid animeList={items} />
