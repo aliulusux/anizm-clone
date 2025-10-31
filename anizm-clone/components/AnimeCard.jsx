@@ -8,13 +8,14 @@ export default function AnimeCard({ anime }) {
       whileHover={{
         scale: 1.05,
         y: -6,
-        boxShadow: "0 8px 25px rgba(59,130,246,0.4)",
       }}
-      transition={{ type: "spring", stiffness: 250, damping: 20 }}
-      className="relative flex flex-col overflow-hidden rounded-2xl border border-white/20 bg-white/10
-      backdrop-blur-md transition-all duration-500 hover:border-blue-400 hover:bg-white/20"
+      transition={{ type: "spring", stiffness: 250, damping: 18 }}
+      className="relative flex flex-col rounded-2xl border border-transparent bg-white/40
+      dark:bg-white/10 backdrop-blur-md overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.08)]
+      transition-all duration-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.45)]
+      hover:border-blue-400/70 hover:bg-white/60 dark:hover:bg-white/20"
     >
-      {/* Cover */}
+      {/* Cover image */}
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-2xl">
         <Image
           src={anime.images?.jpg?.image_url || "/no-image.jpg"}
@@ -27,7 +28,7 @@ export default function AnimeCard({ anime }) {
 
       {/* Info */}
       <div className="p-3 text-center">
-        <h3 className="text-sm font-semibold line-clamp-2 text-white/90 dark:text-black/80">
+        <h3 className="text-sm font-semibold line-clamp-2 text-black/80 dark:text-white/90">
           {anime.title}
         </h3>
         {anime.score && (
