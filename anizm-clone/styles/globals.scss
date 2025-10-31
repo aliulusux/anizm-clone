@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --glass-bg: 255 255 255 / 0.6;
+  --glass-border: 255 255 255 / 0.4;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  @apply bg-gradient-to-br from-slate-100 via-slate-50 to-slate-200 text-slate-900;
+}
+
+.container {
+  @apply max-w-7xl mx-auto px-4 md:px-6;
+}
+
+/* Glass card */
+.glass {
+  background: rgba(var(--glass-bg));
+  @apply border border-white/40 rounded-2xl shadow-glass backdrop-blur-md;
+}
+
+.grid-title {
+  @apply text-2xl md:text-3xl font-semibold tracking-tight;
+}

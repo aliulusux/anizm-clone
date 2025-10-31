@@ -1,0 +1,4 @@
+/* Extra theme hooks if you want to skin later */
+.badge {
+  @apply inline-flex items-center gap-1 rounded-md text-xs px-2 py-1 bg-orange-500 text-white;
+}

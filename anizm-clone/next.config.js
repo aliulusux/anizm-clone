@@ -1,15 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
-    domains: ["cdn.myanimelist.net"], // Jikan’s image host
+    remotePatterns: [
+      { protocol: 'https', hostname: 'cdn.myanimelist.net' },
+      { protocol: 'https', hostname: 'api-cdn.myanimelist.net' }
+    ]
   },
-  reactStrictMode: true,
+  experimental: { optimizePackageImports: ['framer-motion'] }
 };
 
-module.exports = {
-  images: {
-    remotePatterns: [
-      { protocol: "https", hostname: "cdn.myanimelist.net" },
-    ],
-  },
-};
+export default nextConfig;
