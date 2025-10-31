@@ -61,7 +61,20 @@ export default async function GenrePage({ params, searchParams }) {
   } catch (err) {
     console.error("❌ GenrePage fetch error:", err);
     data = {};
+    
   }
+    console.log("🧩 GenrePage debug:", {
+      slug,
+      raw: data,
+      itemsLength: Array.isArray(data?.items)
+        ? data.items.length
+        : Array.isArray(data?.data)
+        ? data.data.length
+        : 0,
+      keys: Object.keys(data || {}),
+    });
+
+
 
   // Defensive parsing
   const items = Array.isArray(data.items)
