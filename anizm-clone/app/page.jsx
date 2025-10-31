@@ -8,7 +8,7 @@ import GenreTabs from "@/components/GenreTabs";
 import LoaderLayout from "@/components/LoaderLayout";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import AnimeCarousel from "@/components/AnimeCarousel"; // 👈 new import
-import ThemeToggle from "@/components/ThemeToggle";
+import GenreFooter from "@/components/GenreFooter";
 
 export default function HomePage() {
   const [animeList, setAnimeList] = useState([]);
@@ -58,6 +58,7 @@ export default function HomePage() {
         <h2 className="grid-title">Türlere Göre Keşfet</h2>
         <GenreTabs />
       </section>
+      <GenreFooter />   {/* ← Add this here */}
     </main>
   );
 }
