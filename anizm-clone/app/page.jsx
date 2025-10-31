@@ -8,6 +8,7 @@ import GenreTabs from "@/components/GenreTabs";
 import LoaderLayout from "@/components/LoaderLayout";
 import SkeletonGrid from "@/components/SkeletonGrid";
 import AnimeCarousel from "@/components/AnimeCarousel"; // 👈 new import
+import ThemeToggle from "@/components/ThemeToggle";
 
 export default function HomePage() {
   const [animeList, setAnimeList] = useState([]);
