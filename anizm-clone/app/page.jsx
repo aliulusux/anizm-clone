@@ -55,8 +55,7 @@ export default function HomePage() {
 
       {/* 🎨 Genres */}
       <section className="space-y-4">
-        <h2 className="grid-title">Türlere Göre Keşfet</h2>
-        <GenreTabs />
+        <h2 className="grid-title">Yeni Çıkan Bölümler</h2>
       </section>
       <GenreFooter />   {/* ← Add this here */}
     </main>

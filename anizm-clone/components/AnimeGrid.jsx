@@ -14,7 +14,7 @@ export default function AnimeGrid({ animeList = [] }) {
   return (
     <div
       className="
-        grid gap-4
+        grid gap-5
         grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
         justify-center
       "
@@ -23,7 +23,12 @@ export default function AnimeGrid({ animeList = [] }) {
         <Link
           key={anime.mal_id}
           href={`/anime/${anime.mal_id}`}
-          className="group w-full glass rounded-2xl overflow-hidden hover:scale-[1.03] transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10"
+          className="
+            group relative w-full rounded-2xl overflow-hidden
+            bg-white/5 backdrop-blur-md
+            border border-white/10
+            hover:scale-[1.03] transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10
+          "
         >
           <div className="relative aspect-[3/4] w-full overflow-hidden">
             <Image
@@ -35,15 +40,19 @@ export default function AnimeGrid({ animeList = [] }) {
               alt={anime.title}
               fill
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
+              className="
+                object-cover transition-transform duration-500
+                group-hover:scale-110
+              "
               priority={false}
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
             />
           </div>
 
-          <div className="p-2 bg-black/40 text-white/90 text-sm truncate">
+          <div className="p-2 bg-black/40 text-white text-sm truncate">
             {anime.title}
-            <div className="text-xs text-amber-400 mt-1">
-              ⭐ {anime.score ? anime.score.toFixed(2) : "N/A"}
+            <div className="text-xs text-amber-400 mt-1 flex items-center gap-1">
+              <span>⭐</span>
+              {anime.score ? anime.score.toFixed(2) : "N/A"}
             </div>
           </div>
         </Link>
