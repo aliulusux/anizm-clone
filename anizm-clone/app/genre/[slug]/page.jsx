@@ -60,6 +60,8 @@ export default function GenrePage({ params }) {
 
   return (
     <main className="relative flex flex-col items-center justify-center py-12 px-4 overflow-hidden">
+     {/* 🌐 Header */}
+        <Header />  
       {/* 🎨 Animated Aura Background */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -104,19 +106,6 @@ export default function GenrePage({ params }) {
             overflow-hidden
           "
         >
-          {/* Back Button */}
-          <button
-            onClick={() => router.back()}
-            className="
-              absolute -left-8 top-1/2 transform -translate-y-1/2
-              bg-gradient-to-r from-gray-200 to-white dark:from-gray-800 dark:to-gray-700
-              text-gray-800 dark:text-white
-              rounded-full p-3 shadow-md hover:scale-110 transition
-              border border-white/40
-            "
-          >
-            ←
-          </button>
 
           {/* 🎬 Anime Grid */}
           {loading ? (
@@ -167,45 +156,69 @@ export default function GenrePage({ params }) {
             </div>
           )}
 
-          {/* 🔁 Pagination with Animation */}
-          <div className="flex justify-center items-center gap-8 mt-10">
+          {/* 🌟 Modern Pagination */}
+            <div className="flex justify-center items-center gap-2 mt-10 select-none">
             <button
-              onClick={() => goToPage(page - 1)}
-              disabled={page <= 1}
-              className={`px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
-                page <= 1
-                  ? "opacity-30 cursor-not-allowed"
-                  : "hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)]"
-              } bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200`}
+                onClick={() => goToPage(page - 1)}
+                disabled={page <= 1}
+                className={`px-3 py-2 rounded-full text-sm backdrop-blur-md border 
+                bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200 
+                transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)] 
+                ${page <= 1 ? "opacity-30 cursor-not-allowed hover:scale-100 hover:shadow-none" : ""}`}
             >
-              ←
+                ←
             </button>
 
-            <AnimatePresence mode="wait">
-              <motion.span
-                key={page}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.35, ease: "easeInOut" }}
-                className="px-5 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/30 text-gray-800 dark:text-gray-200 font-semibold shadow-inner backdrop-blur-md"
-              >
-                {page}
-              </motion.span>
-            </AnimatePresence>
+            {/* Page Numbers */}
+            {Array.from({ length: pageCount }).map((_, i) => {
+                const num = i + 1;
+                if (
+                num === 1 ||
+                num === pageCount ||
+                (num >= page - 2 && num <= page + 2)
+                ) {
+                return (
+                    <button
+                    key={num}
+                    onClick={() => goToPage(num)}
+                    className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200
+                        ${
+                        num === page
+                            ? "bg-gradient-to-r from-cyan-400 to-sky-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.5)] scale-105"
+                            : "bg-white/50 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-cyan-400/30 hover:text-white"
+                        }
+                    `}
+                    >
+                    {num}
+                    </button>
+                );
+                } else if (
+                (num === page - 3 && num > 1) ||
+                (num === page + 3 && num < pageCount)
+                ) {
+                return (
+                    <span
+                    key={num}
+                    className="px-2 text-gray-500 dark:text-gray-400 font-semibold"
+                    >
+                    ...
+                    </span>
+                );
+                }
+                return null;
+            })}
 
             <button
-              onClick={() => goToPage(page + 1)}
-              disabled={page >= pageCount}
-              className={`px-4 py-2 rounded-full backdrop-blur-md border transition-all ${
-                page >= pageCount
-                  ? "opacity-30 cursor-not-allowed"
-                  : "hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)]"
-              } bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200`}
+                onClick={() => goToPage(page + 1)}
+                disabled={page >= pageCount}
+                className={`px-3 py-2 rounded-full text-sm backdrop-blur-md border 
+                bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200 
+                transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)] 
+                ${page >= pageCount ? "opacity-30 cursor-not-allowed hover:scale-100 hover:shadow-none" : ""}`}
             >
-              →
+                →
             </button>
-          </div>
+            </div>
         </motion.div>
       </AnimatePresence>
     </main>
