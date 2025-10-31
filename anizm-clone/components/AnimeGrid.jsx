@@ -1,18 +1,57 @@
 "use client";
-import { motion } from "framer-motion";
-import AnimeCard from "./AnimeCard";
+import Image from "next/image";
+import Link from "next/link";
 
-export default function AnimeGrid({ animeList }) {
+export default function AnimeGrid({ animeList = [] }) {
+  if (!animeList || animeList.length === 0)
+    return <p className="text-center text-gray-400 mt-8">Hiç anime bulunamadı 😢</p>;
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-5"
+    <div
+      className="
+        grid
+        gap-4
+        sm:grid-cols-3
+        md:grid-cols-5
+        lg:grid-cols-7
+        xl:grid-cols-8
+        2xl:grid-cols-10
+        justify-items-center
+      "
     >
-      {animeList.map((a) => (
-        <AnimeCard key={a.mal_id} anime={a} />
+      {animeList.map((anime) => (
+        <Link
+          href={`/anime/${anime.mal_id}`}
+          key={anime.mal_id}
+          className="
+            w-full
+            max-w-[160px]
+            glass
+            rounded-2xl
+            overflow-hidden
+            transition-all
+            duration-300
+            hover:scale-105
+            hover:shadow-lg
+            hover:shadow-orange-500/10
+            group
+          "
+        >
+          <div className="relative aspect-[3/4] w-full overflow-hidden">
+            <Image
+              src={anime.images?.jpg?.image_url || "/placeholder.jpg"}
+              alt={anime.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              sizes="160px"
+            />
+          </div>
+          <div className="p-2 bg-black/40 text-white/90 text-sm truncate">
+            <p className="truncate font-medium">{anime.title}</p>
+            <p className="text-xs text-gray-400">Puan: {anime.score ?? "?"}</p>
+          </div>
+        </Link>
       ))}
-    </motion.div>
+    </div>
   );
 }
