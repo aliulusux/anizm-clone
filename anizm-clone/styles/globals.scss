@@ -44,3 +44,7 @@ body {
 .grid-title {
   @apply text-2xl md:text-3xl font-semibold tracking-tight;
 }
+
+.glass {
+  @apply backdrop-blur-xl bg-white/30 dark:bg-white/10 border border-white/20;
+}

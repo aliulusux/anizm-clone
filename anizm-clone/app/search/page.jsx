@@ -1,11 +1,11 @@
 "use client";
+export const dynamic = "force-dynamic";
+
 import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
 import AnimeGrid from "@/components/AnimeGrid";
 import LoaderLayout from "@/components/LoaderLayout";
 import { searchAnime } from "@/lib/jikan";
-
-export const dynamic = "force-dynamic";
 
 export default async function SearchPage({ searchParams }) {
   const q = (searchParams?.q ?? "").toString();
