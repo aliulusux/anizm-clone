@@ -72,8 +72,9 @@ export default function AnimeCarousel({ animeList = [] }) {
           ))}
         </motion.div>
 
-        {/* ✨ Fade effect on edges */}
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#f9fafb] via-transparent to-[#f9fafb]" />
+        {/* ✨ Softer fade edges */}
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-[#0a0a0a]/10 via-transparent to-[#0a0a0a]/10" />
+
       </div>
     </div>
   );
