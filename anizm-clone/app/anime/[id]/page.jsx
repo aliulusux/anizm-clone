@@ -1,19 +1,50 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import AnimeGrid from "@/components/AnimeGrid";
 import EpisodeList from "@/components/EpisodeList";
 import LoaderLayout from "@/components/LoaderLayout";
-import { getAnimeFull } from "@/lib/jikan";
+import SkeletonGrid from "@/components/SkeletonGrid";
 import { motion } from "framer-motion";
 
-export default async function AnimeDetailPage({ params }) {
+export default function AnimeDetailPage({ params }) {
   const { id } = params;
-  const { anime, recommendations } = await getAnimeFull(id);
+  const [anime, setAnime] = useState(null);
+  const [recommendations, setRecommendations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        setLoading(true);
+        const res = await fetch(`/api/jikan/anime/${id}`);
+        const data = await res.json();
+        setAnime(data.anime);
+        setRecommendations(data.recommendations || []);
+      } catch {
+        setAnime(null);
+        setRecommendations([]);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, [id]);
+
+  if (loading) return <SkeletonGrid count={12} />;
+  if (!anime)
+    return (
+      <div className="container py-10 text-center opacity-70">
+        <h2>Anime bulunamadı.</h2>
+      </div>
+    );
 
   return (
     <main className="container py-8 space-y-10">
       <Header />
 
-      {/* 🧾 Anime details */}
+      {/* 🎬 Anime Details */}
       <motion.section
         className="glass p-6"
         initial={{ opacity: 0, y: 20 }}
@@ -29,18 +60,23 @@ export default async function AnimeDetailPage({ params }) {
           <div className="flex-1">
             <h1 className="text-3xl font-bold mb-3">{anime.title}</h1>
             {anime.title_english && (
-              <div className="text-sm opacity-70 mb-1">{anime.title_english}</div>
+              <div className="text-sm opacity-70 mb-1">
+                {anime.title_english}
+              </div>
             )}
             <div className="flex flex-wrap gap-2 mb-4">
               {anime.genres?.map((g) => (
-                <span key={g.mal_id} className="badge">{g.name}</span>
+                <span key={g.mal_id} className="badge">
+                  {g.name}
+                </span>
               ))}
             </div>
             <p className="opacity-80 leading-relaxed">
               {anime.synopsis || "Açıklama bulunamadı."}
             </p>
             <div className="mt-4 text-sm opacity-70">
-              Yayın: {anime.aired?.string ?? "—"} • Bölüm: {anime.episodes ?? "?"} • Puan: {anime.score ?? "—"}
+              Yayın: {anime.aired?.string ?? "—"} • Bölüm:{" "}
+              {anime.episodes ?? "?"} • Puan: {anime.score ?? "—"}
             </div>
           </div>
         </div>
@@ -55,7 +91,7 @@ export default async function AnimeDetailPage({ params }) {
       </section>
 
       {/* 🎞 Recommendations */}
-      {recommendations?.length > 0 && (
+      {recommendations.length > 0 && (
         <section className="space-y-4">
           <h2 className="grid-title">Benzer / Önerilenler</h2>
           <LoaderLayout count={12}>
