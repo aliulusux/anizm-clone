@@ -26,37 +26,36 @@ export default function AnimeGrid({ animeList = [] }) {
           <Link
             key={`${a.mal_id || a.id}-${i}`}
             href={href}
-            className="group block rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.45)]
-            hover:border-blue-400/70 hover:bg-white/60 dark:hover:bg-white/20transition overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+            className="group block overflow-hidden rounded-2xl border border-white/10 bg-white/5 dark:bg-white/10
+              backdrop-blur-md shadow-[0_0_15px_rgba(0,0,0,0.15)] transition-all duration-500
+              hover:-translate-y-2 hover:shadow-[0_0_25px_rgba(59,130,246,0.45)]
+              hover:border-blue-400/70 hover:bg-white/10"
           >
+            {/* Cover image */}
             <div className="relative aspect-[2.6/4] w-full overflow-hidden rounded-t-2xl">
-              {/* 
-                unoptimized = true → if the optimizer fails or rate-limits, image still shows.
-                We still keep remotePatterns so optimizer works when available.
-              */}
               <Image
                 src={cover || '/placeholder.svg'}
                 alt={a?.title || 'Anime'}
                 fill
                 unoptimized
-                className="object-cover"
+                className="object-cover transition-transform duration-700 group-hover:scale-110"
                 sizes="(max-width: 768px) 50vw, (max-width: 1280px) 33vw, 16vw"
                 priority={i < 6}
               />
-              <div className="pointer-events-none absolute inset-0 ring-1 ring-black/0 group-hover:ring-white/20 transition" />
+              <div className="pointer-events-none absolute inset-0 ring-1 ring-white/0 group-hover:ring-white/20 transition" />
             </div>
 
-            <div className="p-4">
-              <h3 className="text-[15px] font-semibold leading-snug text-white/90 group-hover:text-white">
+            {/* Title + score */}
+            <div className="p-4 text-center">
+              <h3 className="text-[15px] font-semibold leading-snug text-white/90 group-hover:text-white line-clamp-2">
                 {a?.title || 'Untitled'}
               </h3>
-
-              {score ? (
-                <div className="mt-2 inline-flex items-center gap-2 rounded-full bg-black/40 px-3 py-1 text-[13px] text-amber-300">
+              {score && (
+                <div className="mt-2 inline-flex items-center gap-1 rounded-full bg-black/40 px-3 py-1 text-[13px] text-amber-300">
                   <span>⭐</span>
                   <span className="font-semibold">{score.toFixed(2)}</span>
                 </div>
-              ) : null}
+              )}
             </div>
           </Link>
         );
