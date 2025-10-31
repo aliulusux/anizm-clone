@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 const genres = [
   "Aksiyon", "Askeri", "Bilim Kurgu", "Büyü", "Doğaüstü Güçler", "Dram", "Dövüş",
   "Ecchi", "Fantastik", "Gerilim", "Gizem", "Harem", "Josei", "Komedi", "Korku",
@@ -17,12 +19,13 @@ export default function GenreFooter() {
 
         <div className="flex flex-wrap justify-center gap-3">
           {genres.map((genre, i) => (
-            <button
+            <Link
               key={i}
+              href={`/genre/${encodeURIComponent(genre.toLowerCase())}`}
               className="px-4 py-1.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 text-sm text-white/80 hover:text-white transition-all duration-300"
             >
               {genre}
-            </button>
+            </Link>
           ))}
         </div>
 
