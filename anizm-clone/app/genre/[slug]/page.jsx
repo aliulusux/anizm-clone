@@ -1,245 +1,98 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import { motion, AnimatePresence } from "framer-motion";
+// app/genre/[slug]/page.jsx
 import Header from "@/components/Header";
+import AnimeGrid from "@/components/AnimeGrid";
+import NumberedPagination from "@/components/NumberedPagination";
 
-// 🌈 Define aura colors for each genre
-const genreAuras = {
-  aksiyon: "from-sky-400/30 to-blue-500/20",
-  fantastik: "from-purple-400/30 to-pink-500/20",
-  romantizm: "from-pink-300/40 to-red-400/20",
-  komedi: "from-yellow-300/40 to-orange-400/20",
-  korku: "from-red-400/40 to-black/20",
-  bilim: "from-cyan-300/40 to-blue-500/20",
-  dram: "from-rose-400/30 to-purple-500/20",
-  gerilim: "from-indigo-400/30 to-slate-700/30",
-  doğaüstü: "from-violet-400/30 to-indigo-500/20",
-  macera: "from-emerald-300/40 to-teal-500/20",
-  gizem: "from-blue-400/30 to-gray-700/20",
-  shounen: "from-orange-400/30 to-red-400/20",
-  mecha: "from-slate-400/30 to-cyan-500/20",
-  varsayılan: "from-gray-200/30 to-gray-400/20",
+const GENRE_MAP = {
+  aksiyon: 1, askeri: 38, "bilim kurgu": 24, büyü: 16, "doğaüstü güçler": 37,
+  dram: 8, dövüş: 17, ecchi: 9, fantastik: 10, gerilim: 41, gizem: 7,
+  harem: 35, josei: 43, komedi: 4, korku: 14, macera: 2, mecha: 18, film: 80,
+  müzik: 19, ova: 12, okul: 23, oyun: 11, psikolojik: 40, romantizm: 22,
+  seinen: 42, shoujo: 25, "shoujo ai": 26, shounen: 27, "shounen ai": 28,
+  "yaşamdan kesitler": 36, spor: 30, "süper güç": 31, tarihi: 20, uzay: 29,
+  vampir: 32, yaoi: 33, yuri: 34, polisiye: 39, samuray: 21, parodi: 3,
+  şeytanlar: 15, "savaş sanatları": 17, çocuk: 5, ona: 13, arabalar: 3,
+  "kişilik bölünmesi": 40, // keep extras mapped if you use them in footer
 };
 
-export default function GenrePage({ params }) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
+function toTitle(str = "") {
+  return str
+    .replace(/%20/g, " ")
+    .replace(/-/g, " ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .replace(/\w\S*/g, s => s[0].toUpperCase() + s.slice(1));
+}
 
-  const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [pageCount, setPageCount] = useState(1);
+export default async function GenrePage({ params, searchParams }) {
+  const slug = decodeURIComponent(params.slug || "");
+  const genreId = GENRE_MAP[slug.toLowerCase()] ?? null;
 
-  const genre = decodeURIComponent(params.slug).replace(/-/g, " ");
-  const genreKey = genre.toLowerCase();
-  const aura = genreAuras[genreKey] || genreAuras.varsayılan;
+  const page = Number(searchParams?.page || 1);
+  const limit = 24;
 
-  const page = parseInt(searchParams.get("page") || "1");
+  let items = [];
+  let lastPage = 1;
 
-  useEffect(() => {
-    async function loadGenre() {
-      setLoading(true);
-      try {
-        const res = await fetch(`/api/jikan/genre?genre=${genre}&page=${page}`);
-        const data = await res.json();
-        setAnimeList(data.data || []);
-        setPageCount(data.pagination?.last_visible_page || 1);
-      } catch (err) {
-        console.error("Genre load error:", err);
-      } finally {
-        setLoading(false);
-      }
+  if (genreId) {
+    // Use Jikan directly on the server (no CORS issues on server)
+    const url =
+      `https://api.jikan.moe/v4/anime?genres=${genreId}&page=${page}&limit=${limit}&order_by=score&sort=desc`;
+
+    const res = await fetch(url, { next: { revalidate: 300 } });
+    if (res.ok) {
+      const json = await res.json();
+      items = json?.data ?? [];
+      lastPage = json?.pagination?.last_visible_page ?? 1;
     }
-    loadGenre();
-  }, [genre, page]);
+  }
 
-  const goToPage = (num) => {
-    if (num < 1 || num > pageCount) return;
-    router.push(`/genre/${params.slug}?page=${num}`);
-  };
+  // Fallback if this genre is empty: show top anime page 1 and lastPage=1
+  if (!items?.length) {
+    const topRes = await fetch(
+      `https://api.jikan.moe/v4/top/anime?limit=${limit}`,
+      { next: { revalidate: 300 } }
+    );
+    if (topRes.ok) {
+      const json = await topRes.json();
+      items = json?.data ?? [];
+      lastPage = 1;
+    }
+  }
+
+  const displayTitle = toTitle(slug);
 
   return (
-    <main className="relative flex flex-col items-center justify-center py-12 px-4 overflow-hidden">
-     {/* 🌐 Header */}
-        <Header />  
-      {/* 🎨 Animated Aura Background */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={genre + "-bg"}
-          initial={{ opacity: 0, scale: 1.05, filter: "blur(12px)" }}
-          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, scale: 0.95, filter: "blur(12px)" }}
-          transition={{ duration: 0.6, ease: "easeInOut" }}
-          className={`
-            absolute inset-0 -z-10
-            bg-gradient-to-b ${aura}
-            dark:from-gray-900/80 dark:to-gray-950/95
-            backdrop-blur-3xl
-          `}
-        />
-      </AnimatePresence>
+    <>
+      {/* same header as homepage */}
+      <Header />
 
-      <h1 className="text-3xl font-bold mb-6 text-center z-10">
-        <span className="text-orange-500 capitalize">{genre}</span> Animeleri
-      </h1>
-      <p className="text-gray-500 dark:text-gray-400 mb-8 text-center z-10">
-        Bu türdeki animeleri keşfet!
-      </p>
+      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {/* Title block */}
+        <div className="mt-10 mb-8 rounded-3xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-xl shadow-xl">
+          <div className="px-6 py-8 text-center">
+            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
+              <span className="text-primary-500 dark:text-orange-400">{displayTitle}</span>{" "}
+              <span className="text-gray-800 dark:text-gray-100">Animeleri</span>
+            </h1>
+            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
+              Bu türdeki animeleri keşfet!
+            </p>
+          </div>
+        </div>
 
-      {/* 🧊 Glass Container */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={page}
-          initial={{ opacity: 0, scale: 0.96, y: 30 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.96, y: -20 }}
-          transition={{ duration: 0.45, ease: "easeInOut" }}
-          className="
-            w-full max-w-7xl 
-            rounded-3xl 
-            p-6 sm:p-10 
-            backdrop-blur-2xl 
-            bg-white/60 dark:bg-gray-900/50
-            border border-white/30 dark:border-white/10
-            shadow-[0_8px_40px_rgba(0,0,0,0.15)]
-            relative
-            overflow-hidden
-          "
-        >
+        {/* Grid */}
+        <AnimeGrid animeList={items} dense />
 
-          {/* 🎬 Anime Grid */}
-          {loading ? (
-            <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
-          ) : animeList.length === 0 ? (
-            <div className="text-center py-20 text-gray-500">
-              Bu türde anime bulunamadı.
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-              {animeList.map((anime) => (
-                <motion.div
-                  key={anime.mal_id}
-                  whileHover={{ scale: 1.04 }}
-                  transition={{ type: "spring", stiffness: 250, damping: 20 }}
-                  onClick={() => router.push(`/anime/${anime.mal_id}`)}
-                  className="
-                    group cursor-pointer overflow-hidden rounded-2xl
-                    bg-white/30 dark:bg-white/10 
-                    backdrop-blur-md 
-                    transition-all duration-300 
-                    hover:shadow-[0_0_20px_rgba(0,200,255,0.4)]
-                  "
-                >
-                  <div className="relative aspect-[3/4] overflow-hidden">
-                    <Image
-                      src={
-                        anime.images?.jpg?.large_image_url ||
-                        anime.images?.jpg?.image_url
-                      }
-                      alt={anime.title}
-                      width={300}
-                      height={400}
-                      className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-                      unoptimized
-                    />
-                  </div>
-                  <div className="p-2 text-center">
-                    <p className="text-gray-800 dark:text-gray-200 text-sm font-medium truncate">
-                      {anime.title}
-                    </p>
-                    <div className="flex items-center justify-center text-yellow-400 text-xs mt-1">
-                      ⭐ {anime.score || "N/A"}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-
-          {/* 🌊 Floating Cinematic Pagination */}
-            <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 50 }}
-            transition={{ duration: 0.6, ease: "easeInOut" }}
-            className="
-                fixed bottom-6 left-1/2 -translate-x-1/2
-                flex justify-center items-center gap-2
-                backdrop-blur-xl border
-                bg-white/40 dark:bg-gray-900/60 border-white/20
-                rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.25)]
-                px-4 py-3 sm:px-6 sm:py-4
-                z-50
-                transition-all duration-300
-            "
-            >
-            {/* Previous button */}
-            <button
-                onClick={() => goToPage(page - 1)}
-                disabled={page <= 1}
-                className={`px-3 py-2 rounded-full text-sm backdrop-blur-md border 
-                bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200 
-                transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)] 
-                ${page <= 1 ? "opacity-30 cursor-not-allowed hover:scale-100 hover:shadow-none" : ""}`}
-            >
-                ←
-            </button>
-
-            {/* Page Numbers */}
-            {Array.from({ length: pageCount }).map((_, i) => {
-                const num = i + 1;
-                if (
-                num === 1 ||
-                num === pageCount ||
-                (num >= page - 2 && num <= page + 2)
-                ) {
-                return (
-                    <button
-                    key={num}
-                    onClick={() => goToPage(num)}
-                    className={`px-4 py-2 rounded-lg font-semibold text-sm transition-all duration-200
-                        ${
-                        num === page
-                            ? "bg-gradient-to-r from-cyan-400 to-sky-500 text-white shadow-[0_0_20px_rgba(0,200,255,0.6)] scale-105"
-                            : "bg-white/60 dark:bg-white/10 text-gray-700 dark:text-gray-300 hover:bg-cyan-400/30 hover:text-white"
-                        }
-                    `}
-                    >
-                    {num}
-                    </button>
-                );
-                } else if (
-                (num === page - 3 && num > 1) ||
-                (num === page + 3 && num < pageCount)
-                ) {
-                return (
-                    <span
-                    key={num}
-                    className="px-2 text-gray-500 dark:text-gray-400 font-semibold"
-                    >
-                    ...
-                    </span>
-                );
-                }
-                return null;
-            })}
-
-            {/* Next button */}
-            <button
-                onClick={() => goToPage(page + 1)}
-                disabled={page >= pageCount}
-                className={`px-3 py-2 rounded-full text-sm backdrop-blur-md border 
-                bg-white/40 dark:bg-white/10 border-white/30 text-gray-700 dark:text-gray-200 
-                transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(0,200,255,0.4)] 
-                ${page >= pageCount ? "opacity-30 cursor-not-allowed hover:scale-100 hover:shadow-none" : ""}`}
-            >
-                →
-            </button>
-            </motion.div>
-
-        </motion.div>
-      </AnimatePresence>
-    </main>
+        {/* Numbered pagination */}
+        <div className="my-10">
+          <NumberedPagination
+            basePath={`/genre/${encodeURIComponent(slug)}`}
+            currentPage={page}
+            totalPages={lastPage}
+          />
+        </div>
+      </section>
+    </>
   );
 }
