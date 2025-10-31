@@ -15,23 +15,26 @@ export default function AnimeDetailPage({ params }) {
   const [recommendations, setRecommendations] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        setLoading(true);
-        const res = await fetch(`/api/jikan/anime/${id}`);
-        const data = await res.json();
-        setAnime(data.anime);
-        setRecommendations(data.recommendations || []);
-      } catch {
-        setAnime(null);
-        setRecommendations([]);
-      } finally {
-        setLoading(false);
-      }
+useEffect(() => {
+  async function loadData() {
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/jikan/anime/${id}`);
+      const data = await res.json();
+
+      // ✅ FIX: handle both shapes (anime or data)
+      setAnime(data.anime || data.data || null);
+      setRecommendations(data.recommendations || []);
+    } catch {
+      setAnime(null);
+      setRecommendations([]);
+    } finally {
+      setLoading(false);
     }
-    loadData();
-  }, [id]);
+  }
+
+  loadData();
+}, [id]);
 
   if (loading) return <SkeletonGrid count={12} />;
   if (!anime)
