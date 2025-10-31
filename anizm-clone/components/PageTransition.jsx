@@ -24,10 +24,7 @@ export default function PageTransition({ children }) {
         initial="initial"
         animate="enter"
         exit="exit"
-        transition={{
-          duration: 0.6,
-          ease: [0.6, 0.01, 0.05, 0.95],
-        }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
         className="motion-page min-h-screen"
       >
         {children}
