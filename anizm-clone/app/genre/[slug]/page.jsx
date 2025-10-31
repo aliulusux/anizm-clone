@@ -1,5 +1,6 @@
 import NumberedPagination from '@/components/NumberedPagination';
 import AnimeGrid from '@/components/AnimeGrid';
+import Header from "@/components/Header";
 
 async function fetchByGenre(slug, page = 1, limit = 24) {
   const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
@@ -34,6 +35,7 @@ export default async function GenrePage({ params, searchParams }) {
   const title = prettyLabel(slug);
 
   return (
+    <Header />
     <main className="px-4 pb-20">
       {/* Top header */}
       <section className="mx-auto mt-10 max-w-6xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-md">
