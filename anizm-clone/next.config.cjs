@@ -1,18 +1,13 @@
 /** @type {import('next').NextConfig} */
-console.log("✅ Next.js config loaded successfully!");
-
 const nextConfig = {
-  reactStrictMode: true,
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "cdn.myanimelist.net",
-        port: "",
-        pathname: "/**",
-      },
+      // MAL / Jikan covers
+      { protocol: 'https', hostname: 'cdn.myanimelist.net', pathname: '/**' },
+      // (older mirrors still appear in some dumps; safe to allow)
+      { protocol: 'https', hostname: 'myanimelist.cdn-dena.com', pathname: '/**' },
     ],
-    formats: ["image/webp", "image/avif"],
   },
 };
 

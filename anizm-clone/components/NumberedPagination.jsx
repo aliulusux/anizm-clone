@@ -1,98 +1,103 @@
-// components/NumberedPagination.jsx
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useMemo } from "react";
-import clsx from "clsx";
+import Link from 'next/link';
+import { useMemo } from 'react';
 
-function makeRange(current, total, delta = 1) {
-  // returns like [1, 2, 3, "...", 67]
-  const range = [];
-  const left = Math.max(1, current - delta);
-  const right = Math.min(total, current + delta);
+function cx(...arr) {
+  return arr.flat(Infinity).filter(Boolean).join(' ');
+}
 
-  // Always include first/last; compress middle with "..."
-  for (let i = 1; i <= total; i++) {
-    if (i === 1 || i === total || (i >= left && i <= right)) {
-      range.push(i);
-    } else if (range[range.length - 1] !== "...") {
-      range.push("...");
-    }
-  }
-  return range;
+function buildHref(base, page) {
+  // base is a URL like /genre/aksiyon or /genre/aksiyon?page=3
+  const url = new URL(base, 'http://x'); // dummy base
+  url.searchParams.set('page', String(page));
+  // strip dummy origin
+  return url.pathname + (url.search ? url.search : '');
 }
 
 export default function NumberedPagination({
-  basePath = "",
-  currentPage = 1,
+  current = 1,
   totalPages = 1,
+  basePath = '/',
+  window = 1, // how many neighbors to show
 }) {
-  const items = useMemo(
-    () => makeRange(currentPage, totalPages, 1),
-    [currentPage, totalPages]
-  );
+  const pages = useMemo(() => {
+    const list = [];
+    const push = (n) => list.push(n);
+    const addDots = () => list.push('…');
 
-  const prev = Math.max(1, currentPage - 1);
-  const next = Math.min(totalPages, currentPage + 1);
+    const first = 1;
+    const last = totalPages;
 
-  if (totalPages <= 1) return null;
+    const start = Math.max(first, current - window);
+    const end = Math.min(last, current + window);
 
-  const btnBase =
-    "inline-flex items-center justify-center rounded-xl px-3 h-10 text-[0.95rem] font-medium transition ring-1";
+    // Always show first
+    push(first);
+    if (start > first + 1) addDots();
+
+    for (let p = start; p <= end; p++) {
+      if (p !== first && p !== last) push(p);
+    }
+
+    if (end < last - 1) addDots();
+    if (last !== first) push(last);
+
+    return list;
+  }, [current, totalPages, window]);
+
+  const prev = Math.max(1, current - 1);
+  const next = Math.min(totalPages, current + 1);
 
   return (
-    <div className="flex w-full items-center justify-center">
-      <div className="flex items-center gap-2 rounded-2xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-xl px-2 py-2 shadow-xl">
-        {/* Prev */}
-        <Link
-          href={`${basePath}?page=${prev}`}
-          className={clsx(
-            btnBase,
-            "w-10 bg-white/70 dark:bg-white/10 ring-black/5 dark:ring-white/10 hover:bg-white/90 dark:hover:bg-white/15"
-          )}
-          aria-label="Önceki sayfa"
-        >
-          ←
-        </Link>
+    <div className="mx-auto mt-10 flex w-full max-w-xl items-center justify-center gap-2 rounded-2xl bg-white/6 p-3 backdrop-blur-md ring-1 ring-white/10">
+      {/* Prev */}
+      <Link
+        href={buildHref(basePath, prev)}
+        className={cx(
+          'h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10 text-white/80 hover:bg-white/20 hover:text-white transition',
+          current === 1 && 'pointer-events-none opacity-40'
+        )}
+        aria-label="Previous page"
+      >
+        ←
+      </Link>
 
-        {/* Numbers with ellipses */}
-        {items.map((it, idx) =>
-          it === "..." ? (
-            <span
-              key={`dots-${idx}`}
-              className="px-2 text-sm text-gray-500 dark:text-gray-400"
-            >
+      {/* Numbers */}
+      <div className="flex items-center gap-1">
+        {pages.map((p, i) =>
+          p === '…' ? (
+            <span key={`d-${i}`} className="px-3 text-white/50 select-none">
               …
             </span>
           ) : (
             <Link
-              key={it}
-              href={`${basePath}?page=${it}`}
-              className={clsx(
-                btnBase,
-                "min-w-10 px-4",
-                it === currentPage
-                  ? "bg-indigo-600 text-white ring-indigo-500/20"
-                  : "bg-white/70 dark:bg-white/10 text-gray-700 dark:text-gray-200 ring-black/5 dark:ring-white/10 hover:bg-white/90 dark:hover:bg-white/15"
+              key={`p-${p}`}
+              href={buildHref(basePath, p)}
+              className={cx(
+                'h-10 min-w-[40px] px-3 inline-flex items-center justify-center rounded-xl ring-1 transition',
+                p === current
+                  ? 'bg-white text-black ring-white/80'
+                  : 'bg-white/10 text-white/80 ring-white/10 hover:bg-white/20 hover:text-white'
               )}
             >
-              {it}
+              {p}
             </Link>
           )
         )}
-
-        {/* Next */}
-        <Link
-          href={`${basePath}?page=${next}`}
-          className={clsx(
-            btnBase,
-            "w-10 bg-white/70 dark:bg-white/10 ring-black/5 dark:ring-white/10 hover:bg-white/90 dark:hover:bg-white/15"
-          )}
-          aria-label="Sonraki sayfa"
-        >
-          →
-        </Link>
       </div>
+
+      {/* Next */}
+      <Link
+        href={buildHref(basePath, next)}
+        className={cx(
+          'h-10 w-10 inline-flex items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/10 text-white/80 hover:bg-white/20 hover:text-white transition',
+          current === totalPages && 'pointer-events-none opacity-40'
+        )}
+        aria-label="Next page"
+      >
+        →
+      </Link>
     </div>
   );
 }

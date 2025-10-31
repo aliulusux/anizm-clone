@@ -1,98 +1,61 @@
-// app/genre/[slug]/page.jsx
-import Header from "@/components/Header";
-import AnimeGrid from "@/components/AnimeGrid";
-import NumberedPagination from "@/components/NumberedPagination";
+import NumberedPagination from '@/components/NumberedPagination';
+import AnimeGrid from '@/components/AnimeGrid';
 
-const GENRE_MAP = {
-  aksiyon: 1, askeri: 38, "bilim kurgu": 24, büyü: 16, "doğaüstü güçler": 37,
-  dram: 8, dövüş: 17, ecchi: 9, fantastik: 10, gerilim: 41, gizem: 7,
-  harem: 35, josei: 43, komedi: 4, korku: 14, macera: 2, mecha: 18, film: 80,
-  müzik: 19, ova: 12, okul: 23, oyun: 11, psikolojik: 40, romantizm: 22,
-  seinen: 42, shoujo: 25, "shoujo ai": 26, shounen: 27, "shounen ai": 28,
-  "yaşamdan kesitler": 36, spor: 30, "süper güç": 31, tarihi: 20, uzay: 29,
-  vampir: 32, yaoi: 33, yuri: 34, polisiye: 39, samuray: 21, parodi: 3,
-  şeytanlar: 15, "savaş sanatları": 17, çocuk: 5, ona: 13, arabalar: 3,
-  "kişilik bölünmesi": 40, // keep extras mapped if you use them in footer
-};
+async function fetchByGenre(slug, page = 1, limit = 24) {
+  // Your API route should proxy to Jikan and return { data, pagination }
+  const base = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000';
+  const res = await fetch(
+    `${base}/api/jikan/genre?slug=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
+    { next: { revalidate: 60 } }
+  );
+  if (!res.ok) throw new Error('Genre fetch failed');
+  return res.json();
+}
 
-function toTitle(str = "") {
-  return str
-    .replace(/%20/g, " ")
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .replace(/\w\S*/g, s => s[0].toUpperCase() + s.slice(1));
+function prettyLabel(slug) {
+  try {
+    return decodeURIComponent(slug)
+      .replace(/-/g, ' ')
+      .replace(/\b\w/g, (m) => m.toUpperCase());
+  } catch {
+    return slug;
+  }
 }
 
 export default async function GenrePage({ params, searchParams }) {
-  const slug = decodeURIComponent(params.slug || "");
-  const genreId = GENRE_MAP[slug.toLowerCase()] ?? null;
-
+  const slug = params?.slug || 'aksiyon';
   const page = Number(searchParams?.page || 1);
-  const limit = 24;
 
-  let items = [];
-  let lastPage = 1;
+  const { items = [], pagination = {} } = await fetchByGenre(slug, page, 24);
+  const totalPages = pagination?.last_visible_page || 1;
 
-  if (genreId) {
-    // Use Jikan directly on the server (no CORS issues on server)
-    const url =
-      `https://api.jikan.moe/v4/anime?genres=${genreId}&page=${page}&limit=${limit}&order_by=score&sort=desc`;
-
-    const res = await fetch(url, { next: { revalidate: 300 } });
-    if (res.ok) {
-      const json = await res.json();
-      items = json?.data ?? [];
-      lastPage = json?.pagination?.last_visible_page ?? 1;
-    }
-  }
-
-  // Fallback if this genre is empty: show top anime page 1 and lastPage=1
-  if (!items?.length) {
-    const topRes = await fetch(
-      `https://api.jikan.moe/v4/top/anime?limit=${limit}`,
-      { next: { revalidate: 300 } }
-    );
-    if (topRes.ok) {
-      const json = await topRes.json();
-      items = json?.data ?? [];
-      lastPage = 1;
-    }
-  }
-
-  const displayTitle = toTitle(slug);
+  const title = prettyLabel(slug);
 
   return (
-    <>
-      {/* same header as homepage */}
-      <Header />
-
-      <section className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Title block */}
-        <div className="mt-10 mb-8 rounded-3xl border border-black/5 dark:border-white/10 bg-white/70 dark:bg-white/5 backdrop-blur-xl shadow-xl">
-          <div className="px-6 py-8 text-center">
-            <h1 className="text-3xl sm:text-4xl font-bold tracking-tight">
-              <span className="text-primary-500 dark:text-orange-400">{displayTitle}</span>{" "}
-              <span className="text-gray-800 dark:text-gray-100">Animeleri</span>
-            </h1>
-            <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
-              Bu türdeki animeleri keşfet!
-            </p>
-          </div>
-        </div>
-
-        {/* Grid */}
-        <AnimeGrid animeList={items} dense />
-
-        {/* Numbered pagination */}
-        <div className="my-10">
-          <NumberedPagination
-            basePath={`/genre/${encodeURIComponent(slug)}`}
-            currentPage={page}
-            totalPages={lastPage}
-          />
-        </div>
+    <main className="px-4 pb-20">
+      {/* Top header (glassy) */}
+      <section className="mx-auto mt-10 max-w-6xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-md">
+        <h1 className="text-3xl sm:text-4xl font-extrabold">
+          <span className="text-white/90">{title}</span>{' '}
+          <span className="text-orange-500">Animeleri</span>
+        </h1>
+        <p className="mt-3 text-white/60">Bu türdeki animeleri keşfet!</p>
       </section>
-    </>
+
+      {/* Grid */}
+      <section className="mx-auto mt-10 max-w-6xl">
+        <AnimeGrid animeList={items} />
+      </section>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <NumberedPagination
+          current={page}
+          totalPages={totalPages}
+          basePath={`/genre/${encodeURIComponent(slug)}`}
+          window={1} // neighbors
+        />
+      )}
+    </main>
   );
 }
