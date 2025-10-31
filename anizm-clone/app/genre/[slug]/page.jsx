@@ -1,107 +1,84 @@
-"use client";
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
-import AnimeGrid from "@/components/AnimeGrid";
-import LoaderLayout from "@/components/LoaderLayout";
-import SkeletonGrid from "@/components/SkeletonGrid";
+import Image from "next/image";
+import Link from "next/link";
 
-export default function GenrePage({ params }) {
-  const router = useRouter();
-  const [animeList, setAnimeList] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [fallbackMode, setFallbackMode] = useState(false);
+const BASE = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
 
-  const genre = decodeURIComponent(params.slug)
-    .replace(/-/g, " ")
-    .replace(/\s+/g, " ")
-    .trim();
+// Fetch genre data with pagination
+async function fetchGenre(slug, page = 1) {
+  try {
+    const res = await fetch(
+      `${BASE}/api/jikan/genre/${encodeURIComponent(slug)}?page=${page}`,
+      { next: { revalidate: 300 } }
+    );
+    if (!res.ok) throw new Error("Failed to fetch genre anime");
+    return res.json();
+  } catch (err) {
+    console.error("fetchGenre error:", err);
+    return { data: [], pagination: { last_visible_page: 1 } };
+  }
+}
 
-  useEffect(() => {
-    async function fetchGenre() {
-      try {
-        setLoading(true);
-        setFallbackMode(false);
-
-        const res = await fetch(`/api/jikan/genre?genre=${genre}`);
-        const data = await res.json();
-
-        // 🧩 Double check image URLs just in case
-        const fixed =
-          data.items?.map((anime) => {
-            const img =
-              anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url;
-            const secure =
-              img?.startsWith("http") ? img : `https:${img || ""}`;
-            return {
-              ...anime,
-              images: {
-                ...anime.images,
-                jpg: {
-                  ...anime.images?.jpg,
-                  large_image_url: secure,
-                  image_url: secure,
-                },
-              },
-            };
-          }) || [];
-
-        if (fixed.length > 0) {
-          setAnimeList(fixed);
-        } else {
-          console.warn(`No anime found for "${genre}", loading top anime fallback...`);
-          const resTop = await fetch(`/api/jikan/top?limit=24`);
-          const dataTop = await resTop.json();
-          setAnimeList(dataTop.items || []);
-          setFallbackMode(true);
-        }
-      } catch (err) {
-        console.error("Genre fetch error:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchGenre();
-  }, [genre]);
+export default async function GenrePage({ params, searchParams }) {
+  const slug = params.slug;
+  const page = parseInt(searchParams.page || "1", 10);
+  const data = await fetchGenre(slug, page);
+  const animeList = data.data || [];
+  const totalPages = data.pagination?.last_visible_page || 1;
 
   return (
-    <main className="container py-10 space-y-8 fade-in">
-      <button
-        onClick={() => router.back()}
-        className="glass px-4 py-2 rounded-full hover:bg-white/10 transition text-sm font-medium"
-      >
-        ← Geri Dön
-      </button>
-
-      <div className="glass mx-auto max-w-3xl p-8 rounded-3xl text-center backdrop-blur-md shadow-xl border border-white/10 fade-up">
+    <main className="max-w-7xl mx-auto px-4 py-8 text-gray-200">
+      <div className="text-center mb-10">
         <h1 className="text-3xl font-bold">
-          <span className="capitalize">{genre}</span>{" "}
-          <span className="text-orange-400">Animeleri</span>
+          <span className="text-orange-400 capitalize">{slug}</span> Animeleri
         </h1>
-
-        {fallbackMode ? (
-          <p className="text-sm mt-2 text-gray-400">
-            Bu türde anime bulunamadı. <br />
-            En popüler animeler gösteriliyor 👇
-          </p>
-        ) : (
-          <p className="text-sm mt-2 text-gray-400">
-            {loading ? "Yükleniyor..." : "Bu türdeki animeleri keşfet!"}
-          </p>
-        )}
+        <p className="text-gray-400 mt-2">Bu türdeki animeleri keşfet!</p>
       </div>
 
-      {loading ? (
-        <SkeletonGrid count={16} />
-      ) : animeList.length > 0 ? (
-        <LoaderLayout count={16}>
-          <AnimeGrid animeList={animeList} />
-        </LoaderLayout>
-      ) : (
-        <p className="text-center text-gray-400 mt-10">
-          Hiçbir sonuç bulunamadı 😢
-        </p>
-      )}
+      {/* Anime Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-5">
+        {animeList.map((anime) => (
+          <Link
+            href={`/anime/${anime.mal_id}`}
+            key={anime.mal_id}
+            className="group glass rounded-2xl overflow-hidden flex flex-col transition-all duration-300 hover:scale-[1.04] hover:shadow-[0_0_25px_rgba(0,200,255,0.35)]"
+          >
+            <div className="relative aspect-[3/4] overflow-hidden">
+              <Image
+                src={anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url || ""}
+                alt={anime.title}
+                width={300}
+                height={420}
+                unoptimized
+                className="object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+              />
+            </div>
+            <div className="flex flex-col justify-between flex-grow bg-black/40 text-white p-2">
+              <p className="text-sm font-medium truncate text-center">{anime.title}</p>
+              <div className="flex items-center justify-center gap-1 text-yellow-400 text-xs mt-1">
+                <span>⭐</span>
+                <span>{anime.score || "N/A"}</span>
+              </div>
+            </div>
+          </Link>
+        ))}
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-center items-center gap-2 mt-10">
+        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => i + 1).map((num) => (
+          <Link
+            key={num}
+            href={`/genre/${slug}?page=${num}`}
+            className={`px-3 py-1.5 rounded-md border transition-all duration-300 ${
+              num === page
+                ? "bg-orange-500 border-orange-400 text-white"
+                : "bg-transparent border-gray-600 hover:bg-gray-700"
+            }`}
+          >
+            {num}
+          </Link>
+        ))}
+      </div>
     </main>
   );
 }
