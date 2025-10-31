@@ -6,7 +6,7 @@ export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
 
-    // ✅ Accept both ?genre= and ?slug= (critical fix)
+    // ✅ Support both ?genre= and ?slug=
     const raw = decodeURIComponent(
       searchParams.get("genre") || searchParams.get("slug") || ""
     )
@@ -16,7 +16,7 @@ export async function GET(req) {
     const page = searchParams.get("page") || 1;
     const limit = searchParams.get("limit") || 24;
 
-    // ✅ Lookup genre ID from bilingual map
+    // ✅ Lookup genre ID
     const genreId = genreMap[raw];
     let data = [];
     let pagination = {};
@@ -29,18 +29,23 @@ export async function GET(req) {
       pagination = topData.pagination || {};
     } else {
       const res = await fetch(
-        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&page=${page}&order_by=score&sort=desc`
+        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=${limit}&page=${page}&order_by=score&sort=desc`
       );
-      const data = await res.json();
+      const result = await res.json();
 
       console.log("🟢 Jikan response:", {
         genreId,
         raw,
-        dataCount: data.data?.length,
-        sampleTitle: data.data?.[0]?.title,
+        dataCount: result.data?.length,
+        sampleTitle: result.data?.[0]?.title,
       });
 
-      return Response.json({ items: data.data, pagination: data.pagination });
+      data = result.data || [];
+      pagination = result.pagination || {};
+    }
+
+    // ✅ Return with consistent key names for GenrePage
+    return Response.json({ items: data, pagination });
   } catch (err) {
     console.error("Genre API error:", err);
     return Response.json({ items: [], pagination: {} }, { status: 500 });
