@@ -1,3 +1,4 @@
+"use client";
 import Header from "@/components/Header";
 import SearchBar from "@/components/SearchBar";
 import AnimeGrid from "@/components/AnimeGrid";
