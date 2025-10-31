@@ -35,8 +35,9 @@ export default async function GenrePage({ params, searchParams }) {
   const title = prettyLabel(slug);
 
   return (
-    <Header />
+    
     <main className="px-4 pb-20">
+        <Header />
       {/* Top header */}
       <section className="mx-auto mt-10 max-w-6xl rounded-3xl border border-white/10 bg-white/5 p-8 text-center backdrop-blur-md">
         <h1 className="text-3xl sm:text-4xl font-extrabold">
