@@ -37,10 +37,10 @@ const genreMap = {
   scifi: 24,
   tarihi: 13,
   tarih: 13,
-  supergucler: 31,
+  süpergüçler: 31,
   dovus: 17,
   mecha: 18,
-  muzik: 19,
+  müzik: 19,
   okul: 23,
   oyun: 11,
   ecchi: 9,
@@ -49,7 +49,7 @@ const genreMap = {
   sliceoflife: 36,
   yasamdankesitler: 36,
   parodi: 20,
-  cocuk: 15,
+  çocuk: 15,
   askeri: 38,
   arabalar: 3,
   polisiye: 39,
@@ -61,9 +61,8 @@ const genreMap = {
   samuray: 21,
   sporgucu: 30,
   spor: 30,
-  buyu: 16,
-  dogauestugucler: 37,
-  dogaustugucler: 37,
+  büyü: 16,
+  doğaüstügüçler: 37,
 
   // ❤️‍🔥 Demographics
   shounen: 27,
@@ -79,37 +78,39 @@ const genreMap = {
 
   // 👻 Misc themes
   okulhayati: 23,
-  mucadele: 17,
+  mücadele: 17,
   superpower: 31,
-  savassanatlari: 6,
+  savaşsanatlari: 6,
   parodi: 20,
   oyunbaz: 11,
-  cocuklar: 15,
+  çocuklar: 15,
 };
 
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const genre = searchParams.get("genre");
+    const raw = searchParams.get("genre")?.toLowerCase() || "";
 
-    if (!genre) {
-      return Response.json({ error: "Genre param missing" }, { status: 400 });
+    const genreId = GENRE_MAP[raw];
+
+    // 🧠 Fallback if no match found
+    if (!genreId) {
+      console.warn(`⚠️ No anime found for "${raw}", loading top anime fallback...`);
+      const topRes = await fetch("https://api.jikan.moe/v4/top/anime?limit=24");
+      const topData = await topRes.json();
+      return Response.json({ items: topData.data });
     }
 
-    const url = `https://api.jikan.moe/v4/anime?genres=${encodeURIComponent(genre)}&limit=24&order_by=score&sort=desc`;
-    const res = await fetch(url, { next: { revalidate: 300 } });
+    // ✅ Fetch by ID
+    const res = await fetch(
+      `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&order_by=score&sort=desc`,
+      { next: { revalidate: 300 } }
+    );
 
-    if (!res.ok) throw new Error("Failed to fetch genre data");
+    if (!res.ok) throw new Error("Genre fetch failed");
+
     const data = await res.json();
-
-    return Response.json({
-      items: data.data.map((item) => ({
-        mal_id: item.mal_id,
-        title: item.title,
-        score: item.score,
-        images: item.images,
-      })),
-    });
+    return Response.json({ items: data.data });
   } catch (err) {
     console.error("Genre API error:", err);
     return Response.json({ error: "Failed to fetch genre anime" }, { status: 500 });
