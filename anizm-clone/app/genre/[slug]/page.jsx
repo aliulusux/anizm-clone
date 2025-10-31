@@ -89,6 +89,11 @@ export default async function GenrePage({ params, searchParams }) {
 
   // ✅ Render (UI unchanged)
   return (
+    {/* Temporary debug */}
+    <section className="text-xs text-white bg-black/30 p-4 rounded-lg">
+      <h2>🧩 Debug Data</h2>
+      <pre>{JSON.stringify(data, null, 2).slice(0, 1000)}</pre>
+    </section>
     <main className="container py-4 space-y-8">
       <Header />
 
