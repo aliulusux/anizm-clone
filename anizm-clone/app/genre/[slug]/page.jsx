@@ -22,23 +22,37 @@ export default function GenrePage({ params }) {
         setLoading(true);
         setFallbackMode(false);
 
-        // 🎯 Fetch anime by genre
         const res = await fetch(`/api/jikan/genre?genre=${genre}`);
         const data = await res.json();
 
-        if (data.items && data.items.length > 0) {
-          setAnimeList(data.items);
+        // 🧩 Double check image URLs just in case
+        const fixed =
+          data.items?.map((anime) => {
+            const img =
+              anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url;
+            const secure =
+              img?.startsWith("http") ? img : `https:${img || ""}`;
+            return {
+              ...anime,
+              images: {
+                ...anime.images,
+                jpg: {
+                  ...anime.images?.jpg,
+                  large_image_url: secure,
+                  image_url: secure,
+                },
+              },
+            };
+          }) || [];
+
+        if (fixed.length > 0) {
+          setAnimeList(fixed);
         } else {
           console.warn(`No anime found for "${genre}", loading top anime fallback...`);
-
-          // 🪄 Fallback: fetch top anime
           const resTop = await fetch(`/api/jikan/top?limit=24`);
           const dataTop = await resTop.json();
-
-          if (dataTop.items && dataTop.items.length > 0) {
-            setAnimeList(dataTop.items);
-            setFallbackMode(true);
-          }
+          setAnimeList(dataTop.items || []);
+          setFallbackMode(true);
         }
       } catch (err) {
         console.error("Genre fetch error:", err);
@@ -52,7 +66,6 @@ export default function GenrePage({ params }) {
 
   return (
     <main className="container py-10 space-y-8 fade-in">
-      {/* ⬅️ Back Button */}
       <button
         onClick={() => router.back()}
         className="glass px-4 py-2 rounded-full hover:bg-white/10 transition text-sm font-medium"
@@ -60,7 +73,6 @@ export default function GenrePage({ params }) {
         ← Geri Dön
       </button>
 
-      {/* 🏷️ Title */}
       <div className="glass mx-auto max-w-3xl p-8 rounded-3xl text-center backdrop-blur-md shadow-xl border border-white/10 fade-up">
         <h1 className="text-3xl font-bold">
           <span className="capitalize">{genre}</span>{" "}
@@ -79,7 +91,6 @@ export default function GenrePage({ params }) {
         )}
       </div>
 
-      {/* 🎬 Anime List */}
       {loading ? (
         <SkeletonGrid count={16} />
       ) : animeList.length > 0 ? (

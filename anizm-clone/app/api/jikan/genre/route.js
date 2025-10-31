@@ -20,11 +20,29 @@ export async function GET(req) {
     const res = await fetch(
       `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&order_by=score&sort=desc`
     );
-
     if (!res.ok) throw new Error("Failed to fetch genre data");
 
     const data = await res.json();
-    return Response.json({ items: data.data });
+
+    // 🧩 FIX: Ensure every image URL starts with https://
+    const fixedData = (data.data || []).map((anime) => {
+      const img = anime.images?.jpg?.large_image_url || anime.images?.jpg?.image_url;
+      const secureImg =
+        img?.startsWith("http") ? img : `https:${img || ""}`;
+      return {
+        ...anime,
+        images: {
+          ...anime.images,
+          jpg: {
+            ...anime.images?.jpg,
+            large_image_url: secureImg,
+            image_url: secureImg,
+          },
+        },
+      };
+    });
+
+    return Response.json({ items: fixedData });
   } catch (err) {
     console.error("Genre API error:", err);
     return Response.json({ error: err.message }, { status: 500 });
