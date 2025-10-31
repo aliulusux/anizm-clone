@@ -36,6 +36,7 @@ useEffect(() => {
   loadData();
 }, [id]);
 
+
   if (loading) return <SkeletonGrid count={12} />;
   if (!anime)
     return (

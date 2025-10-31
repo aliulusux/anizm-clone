@@ -5,14 +5,21 @@ import Header from "@/components/Header";
 // ✅ Safer fetch with fallback
 async function fetchByGenre(slug, page = 1, limit = 24) {
   try {
-    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+    // ✅ Use absolute URL dynamically (works on Vercel too)
+    const base =
+      process.env.NEXT_PUBLIC_BASE_URL ||
+      (typeof window !== "undefined"
+        ? window.location.origin
+        : process.env.VERCEL_URL
+        ? `https://${process.env.VERCEL_URL}`
+        : "http://localhost:3000");
+
     const res = await fetch(
       `${base}/api/jikan/genre?slug=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
       { next: { revalidate: 60 } }
     );
 
     if (!res.ok) throw new Error(`Genre fetch failed: ${res.status}`);
-
     const data = await res.json();
     return data || {};
   } catch (err) {
