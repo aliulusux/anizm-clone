@@ -4,6 +4,24 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 
+// 🌈 Define aura colors for each genre
+const genreAuras = {
+  aksiyon: "from-sky-400/30 to-blue-500/20",
+  fantastik: "from-purple-400/30 to-pink-500/20",
+  romantizm: "from-pink-300/40 to-red-400/20",
+  komedi: "from-yellow-300/40 to-orange-400/20",
+  korku: "from-red-400/40 to-black/20",
+  bilim: "from-cyan-300/40 to-blue-500/20",
+  dram: "from-rose-400/30 to-purple-500/20",
+  gerilim: "from-indigo-400/30 to-slate-700/30",
+  doğaüstü: "from-violet-400/30 to-indigo-500/20",
+  macera: "from-emerald-300/40 to-teal-500/20",
+  gizem: "from-blue-400/30 to-gray-700/20",
+  shounen: "from-orange-400/30 to-red-400/20",
+  mecha: "from-slate-400/30 to-cyan-500/20",
+  varsayılan: "from-gray-200/30 to-gray-400/20",
+};
+
 export default function GenrePage({ params }) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -13,6 +31,9 @@ export default function GenrePage({ params }) {
   const [pageCount, setPageCount] = useState(1);
 
   const genre = decodeURIComponent(params.slug).replace(/-/g, " ");
+  const genreKey = genre.toLowerCase();
+  const aura = genreAuras[genreKey] || genreAuras.varsayılan;
+
   const page = parseInt(searchParams.get("page") || "1");
 
   useEffect(() => {
@@ -39,21 +60,20 @@ export default function GenrePage({ params }) {
 
   return (
     <main className="relative flex flex-col items-center justify-center py-12 px-4 overflow-hidden">
-      {/* 🩵 Animated background layer */}
+      {/* 🎨 Animated Aura Background */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={page + "-bg"}
-          initial={{ opacity: 0, filter: "blur(12px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          exit={{ opacity: 0, filter: "blur(12px)" }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
-          className="
-            absolute inset-0
-            bg-gradient-to-b from-white/40 to-white/70
-            dark:from-gray-900/70 dark:to-gray-950/90
+          key={genre + "-bg"}
+          initial={{ opacity: 0, scale: 1.05, filter: "blur(12px)" }}
+          animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+          exit={{ opacity: 0, scale: 0.95, filter: "blur(12px)" }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
+          className={`
+            absolute inset-0 -z-10
+            bg-gradient-to-b ${aura}
+            dark:from-gray-900/80 dark:to-gray-950/95
             backdrop-blur-3xl
-            -z-10
-          "
+          `}
         />
       </AnimatePresence>
 
@@ -64,7 +84,7 @@ export default function GenrePage({ params }) {
         Bu türdeki animeleri keşfet!
       </p>
 
-      {/* ✨ Glass container with cinematic animation */}
+      {/* 🧊 Glass Container */}
       <AnimatePresence mode="wait">
         <motion.div
           key={page}
@@ -84,7 +104,7 @@ export default function GenrePage({ params }) {
             overflow-hidden
           "
         >
-          {/* Back button */}
+          {/* Back Button */}
           <button
             onClick={() => router.back()}
             className="
@@ -98,7 +118,7 @@ export default function GenrePage({ params }) {
             ←
           </button>
 
-          {/* Anime Grid */}
+          {/* 🎬 Anime Grid */}
           {loading ? (
             <div className="text-center py-20 text-gray-400">Yükleniyor...</div>
           ) : animeList.length === 0 ? (
@@ -147,7 +167,7 @@ export default function GenrePage({ params }) {
             </div>
           )}
 
-          {/* Pagination */}
+          {/* 🔁 Pagination with Animation */}
           <div className="flex justify-center items-center gap-8 mt-10">
             <button
               onClick={() => goToPage(page - 1)}
@@ -164,9 +184,9 @@ export default function GenrePage({ params }) {
             <AnimatePresence mode="wait">
               <motion.span
                 key={page}
-                initial={{ opacity: 0, y: 10, scale: 0.9 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -10, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.35, ease: "easeInOut" }}
                 className="px-5 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/30 text-gray-800 dark:text-gray-200 font-semibold shadow-inner backdrop-blur-md"
               >
