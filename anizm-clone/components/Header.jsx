@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ThemeToggle from "./ThemeToggle";
 
 export default function Header() {
   return (
@@ -11,6 +12,7 @@ export default function Header() {
         <nav className="flex gap-4 text-sm">
           <Link href="/" className="opacity-80 hover:opacity-100">Anasayfa</Link>
           <Link href="/search" className="opacity-80 hover:opacity-100">Ara</Link>
+          <ThemeToggle />
           <a href="https://docs.api.jikan.moe" target="_blank" className="opacity-80 hover:opacity-100">Jikan API</a>
         </nav>
       </div>
