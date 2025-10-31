@@ -7,7 +7,7 @@ async function fetchByGenre(slug, page = 1, limit = 24) {
   try {
     const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(
-      `${base}/api/jikan/genre?slug=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
+      `${base}/api/jikan/genre?genre=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
       { next: { revalidate: 60 } }
     );
 
