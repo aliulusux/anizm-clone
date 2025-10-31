@@ -29,7 +29,7 @@ export default function AnimeGrid({ animeList = [] }) {
             className="group block rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.45)]
             hover:border-blue-400/70 hover:bg-white/60 dark:hover:bg-white/20transition overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
           >
-            <div className="relative w-full aspect-[2/3]">
+            <div className="relative aspect-[2.6/4] w-full overflow-hidden rounded-t-2xl">
               {/* 
                 unoptimized = true → if the optimizer fails or rate-limits, image still shows.
                 We still keep remotePatterns so optimizer works when available.
