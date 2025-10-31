@@ -2,10 +2,8 @@ import NumberedPagination from "@/components/NumberedPagination";
 import AnimeGrid from "@/components/AnimeGrid";
 import Header from "@/components/Header";
 
-// ✅ Safer fetch with fallback
 async function fetchByGenre(slug, page = 1, limit = 24) {
   try {
-    // ✅ Use absolute URL dynamically (works on Vercel too)
     const base =
       process.env.NEXT_PUBLIC_BASE_URL ||
       (typeof window !== "undefined"
@@ -20,11 +18,23 @@ async function fetchByGenre(slug, page = 1, limit = 24) {
     );
 
     if (!res.ok) throw new Error(`Genre fetch failed: ${res.status}`);
+
     const data = await res.json();
-    return data || {};
+
+    // ✅ Normalize structure to always return items[]
+    if (Array.isArray(data)) {
+      return { items: data, pagination: {} };
+    } else if (Array.isArray(data.data)) {
+      return { items: data.data, pagination: data.pagination || {} };
+    } else if (Array.isArray(data.items)) {
+      return { items: data.items, pagination: data.pagination || {} };
+    } else {
+      console.warn("⚠️ Unexpected API format:", data);
+      return { items: [], pagination: {} };
+    }
   } catch (err) {
     console.error("❌ fetchByGenre error:", err);
-    return { data: [], pagination: {} };
+    return { items: [], pagination: {} };
   }
 }
 
