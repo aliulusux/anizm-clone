@@ -34,7 +34,7 @@ export default async function GenrePage({ params, searchParams }) {
   const title = prettyLabel(slug);
 
   return (
-    <main className="px-4 pb-20">
+    <main className="py-8 pb-20 space-y-10">
         <Header />
       {/* Header */}
       <section className="mx-auto mt-10 max-w-6xl text-center">
