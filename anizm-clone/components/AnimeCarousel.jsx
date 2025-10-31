@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function GenrePage({ params }) {
   const router = useRouter();
@@ -119,8 +120,8 @@ export default function GenrePage({ params }) {
           </div>
         )}
 
-        {/* Pagination Arrows */}
-        <div className="flex justify-center items-center gap-6 mt-10">
+        {/* Pagination Arrows + Animated Page Number */}
+        <div className="flex justify-center items-center gap-8 mt-10">
           <button
             onClick={() => goToPage(page - 1)}
             disabled={page <= 1}
@@ -133,9 +134,18 @@ export default function GenrePage({ params }) {
             ←
           </button>
 
-          <span className="px-5 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/30 text-gray-800 dark:text-gray-200 font-semibold shadow-inner">
-            {page}
-          </span>
+          <AnimatePresence mode="wait">
+            <motion.span
+              key={page}
+              initial={{ opacity: 0, y: 10, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.9 }}
+              transition={{ duration: 0.35, ease: "easeInOut" }}
+              className="px-5 py-2 rounded-xl bg-white/50 dark:bg-white/10 border border-white/30 text-gray-800 dark:text-gray-200 font-semibold shadow-inner backdrop-blur-md"
+            >
+              {page}
+            </motion.span>
+          </AnimatePresence>
 
           <button
             onClick={() => goToPage(page + 1)}
