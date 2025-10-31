@@ -1,45 +1,5 @@
 export const dynamic = "force-dynamic";
-
-// 🔠 Map Turkish genre names to Jikan numeric genre IDs
-const GENRE_MAP = {
-  aksiyon: 1,
-  macera: 2,
-  komedi: 4,
-  dram: 8,
-  drama: 8,
-  büyü: 16,
-  fantastik: 10,
-  "doğaüstü güçler": 37,
-  doğaüstü: 37,
-  gizem: 7,
-  gerilim: 41,
-  korku: 14,
-  bilim: 24,
-  "bilim kurgu": 24,
-  "savaş sanatları": 17,
-  askeri: 38,
-  romantik: 22,
-  romantizm: 22,
-  psikolojik: 40,
-  spor: 30,
-  okul: 23,
-  müzik: 19,
-  seinen: 42,
-  shounen: 27,
-  shoujo: 25,
-  josei: 43,
-  mecha: 18,
-  oyun: 11,
-  uzay: 29,
-  vampir: 32,
-  tarih: 13,
-  tarihi: 13,
-  çocuk: 15,
-  parodi: 20,
-  polisiye: 39,
-  "süper güç": 31,
-  "yaşamdan kesitler": 36,
-};
+import genreMap from "@/lib/genreMap";
 
 export async function GET(req) {
   try {
@@ -48,7 +8,7 @@ export async function GET(req) {
       .toLowerCase()
       .trim();
 
-    const genreId = GENRE_MAP[raw];
+    const genreId = genreMap[raw];
 
     if (!genreId) {
       console.warn(`⚠️ No Jikan genre found for "${raw}". Showing top anime.`);
