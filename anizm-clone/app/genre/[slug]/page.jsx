@@ -4,21 +4,13 @@ import Header from "@/components/Header";
 
 // ✅ Fetch genre data safely
 async function fetchByGenre(slug, page = 1, limit = 24) {
-  try {
-    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
-    const res = await fetch(
-      `${base}/api/jikan/genre?genre=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
-      { next: { revalidate: 60 } }
-    );
-
-    if (!res.ok) throw new Error(`Genre fetch failed: ${res.status}`);
-
-    const data = await res.json();
-    return data || {};
-  } catch (err) {
-    console.error("❌ fetchByGenre error:", err);
-    return { data: [], pagination: {} };
-  }
+  const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const res = await fetch(
+    `${base}/api/jikan/genre?genre=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
+    { next: { revalidate: 60 } }
+  );
+  if (!res.ok) throw new Error(`Genre fetch failed: ${res.status}`);
+  return res.json();
 }
 
 // ✅ Nicely formatted genre title
@@ -36,6 +28,7 @@ function prettyLabel(slug) {
 export default async function GenrePage({ params, searchParams }) {
   const slug = params?.slug || "aksiyon";
   const page = Number(searchParams?.page || 1);
+  const data = await fetchByGenre(slug, page, 24);
 
   // Fetch the genre data
   let data = {};
