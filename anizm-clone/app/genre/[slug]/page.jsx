@@ -2,16 +2,10 @@ import NumberedPagination from "@/components/NumberedPagination";
 import AnimeGrid from "@/components/AnimeGrid";
 import Header from "@/components/Header";
 
+// ✅ Fetch genre data safely
 async function fetchByGenre(slug, page = 1, limit = 24) {
   try {
-    const base =
-      process.env.NEXT_PUBLIC_BASE_URL ||
-      (typeof window !== "undefined"
-        ? window.location.origin
-        : process.env.VERCEL_URL
-        ? `https://${process.env.VERCEL_URL}`
-        : "http://localhost:3000");
-
+    const base = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
     const res = await fetch(
       `${base}/api/jikan/genre?slug=${encodeURIComponent(slug)}&page=${page}&limit=${limit}`,
       { next: { revalidate: 60 } }
@@ -20,25 +14,14 @@ async function fetchByGenre(slug, page = 1, limit = 24) {
     if (!res.ok) throw new Error(`Genre fetch failed: ${res.status}`);
 
     const data = await res.json();
-
-    // ✅ Normalize structure to always return items[]
-    if (Array.isArray(data)) {
-      return { items: data, pagination: {} };
-    } else if (Array.isArray(data.data)) {
-      return { items: data.data, pagination: data.pagination || {} };
-    } else if (Array.isArray(data.items)) {
-      return { items: data.items, pagination: data.pagination || {} };
-    } else {
-      console.warn("⚠️ Unexpected API format:", data);
-      return { items: [], pagination: {} };
-    }
+    return data || {};
   } catch (err) {
     console.error("❌ fetchByGenre error:", err);
-    return { items: [], pagination: {} };
+    return { data: [], pagination: {} };
   }
 }
 
-// ✅ Keep pretty label safe
+// ✅ Nicely formatted genre title
 function prettyLabel(slug) {
   try {
     return decodeURIComponent(slug)
@@ -49,56 +32,37 @@ function prettyLabel(slug) {
   }
 }
 
-// ✅ Main page
+// ✅ Main genre page component
 export default async function GenrePage({ params, searchParams }) {
   const slug = params?.slug || "aksiyon";
   const page = Number(searchParams?.page || 1);
 
-  // Safe fetch
+  // Fetch the genre data
   let data = {};
   try {
     data = await fetchByGenre(slug, page, 24);
   } catch (err) {
     console.error("❌ GenrePage fetch error:", err);
     data = {};
-    
   }
-    console.log("🧩 GenrePage debug:", {
-      slug,
-      raw: data,
-      itemsLength: Array.isArray(data?.items)
-        ? data.items.length
-        : Array.isArray(data?.data)
-        ? data.data.length
-        : 0,
-      keys: Object.keys(data || {}),
-    });
 
-
-
-  // Defensive parsing
-  const items = Array.isArray(data.items)
-    ? data.items
-    : Array.isArray(data.data)
-    ? data.data
-    : [];
+  // ✅ Corrected data extraction
+  const items =
+    Array.isArray(data?.data) ? data.data :
+    Array.isArray(data?.items) ? data.items :
+    Array.isArray(data) ? data :
+    [];
 
   const pagination = data.pagination || {};
   const totalPages = pagination?.last_visible_page || 1;
   const title = prettyLabel(slug);
 
-  // ✅ Render (UI unchanged)
+  // ✅ UI stays exactly the same
   return (
-    
     <main className="container py-4 space-y-8">
-      {/* Temporary debug */}
-      <section className="text-xs text-white bg-black/30 p-4 rounded-lg">
-        <h2>🧩 Debug Data</h2>
-        <pre>{JSON.stringify(data, null, 2).slice(0, 1000)}</pre>
-      </section>
       <Header />
 
-      {/* Header */}
+      {/* Header section */}
       <section className="mx-auto mt-10 max-w-6xl text-center">
         <h1 className="text-3xl sm:text-4xl font-extrabold">
           <span className="text-white/90">{title}</span>{" "}
