@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+export const dynamic = "force-dynamic"; // ✅ Fixes the build error
 
 /**
  * Normalizes Turkish/English slugs.
@@ -89,25 +90,28 @@ const genreMap = {
 export async function GET(req) {
   try {
     const { searchParams } = new URL(req.url);
-    const genre = searchParams.get("genre") || "";
-    const slug = normalizeSlug(genre);
+    const genre = searchParams.get("genre");
 
-    const genreId = genreMap[slug];
-    if (!genreId) {
-      console.warn("Unknown genre:", slug);
-      return NextResponse.json({ items: [], error: "Invalid genre" });
+    if (!genre) {
+      return Response.json({ error: "Genre param missing" }, { status: 400 });
     }
 
-    const res = await fetch(
-      `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24`
-    );
+    const url = `https://api.jikan.moe/v4/anime?genres=${encodeURIComponent(genre)}&limit=24&order_by=score&sort=desc`;
+    const res = await fetch(url, { next: { revalidate: 300 } });
 
-    if (!res.ok) throw new Error("Jikan fetch failed");
-
+    if (!res.ok) throw new Error("Failed to fetch genre data");
     const data = await res.json();
-    return NextResponse.json({ items: data.data || [] });
+
+    return Response.json({
+      items: data.data.map((item) => ({
+        mal_id: item.mal_id,
+        title: item.title,
+        score: item.score,
+        images: item.images,
+      })),
+    });
   } catch (err) {
     console.error("Genre API error:", err);
-    return NextResponse.json({ items: [], error: err.message });
+    return Response.json({ error: "Failed to fetch genre anime" }, { status: 500 });
   }
 }
