@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { motion } from "framer-motion";
+import Image from "next/image";
 
 export default function AnimeCard({ anime }) {
   const img = anime.images?.jpg?.image_url || anime.image_url || "";
@@ -12,7 +13,7 @@ export default function AnimeCard({ anime }) {
       >
         <div className="relative aspect-[3/4] w-full">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={img}
             alt={anime.title}
             className="w-full h-full object-cover"
