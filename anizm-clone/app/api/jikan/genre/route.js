@@ -29,12 +29,18 @@ export async function GET(req) {
       pagination = topData.pagination || {};
     } else {
       const res = await fetch(
-        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=${limit}&page=${page}&order_by=score&sort=desc`
+        `https://api.jikan.moe/v4/anime?genres=${genreId}&limit=24&page=${page}&order_by=score&sort=desc`
       );
-      const json = await res.json();
-      data = json.data || [];
-      pagination = json.pagination || {};
-    }
+      const data = await res.json();
+
+      console.log("🟢 Jikan response:", {
+        genreId,
+        raw,
+        dataCount: data.data?.length,
+        sampleTitle: data.data?.[0]?.title,
+      });
+
+      return Response.json({ items: data.data, pagination: data.pagination });
 
     // ✅ Always return items for GenrePage.jsx
     return Response.json({ items: data.data, pagination: data.pagination });
