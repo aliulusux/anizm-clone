@@ -11,9 +11,7 @@ export default function AnimeCard({ anime }) {
       }}
       transition={{ type: "spring", stiffness: 250, damping: 18 }}
       className="relative flex flex-col rounded-2xl border border-transparent bg-white/40
-      dark:bg-white/10 backdrop-blur-md overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.08)]
-      transition-all duration-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.45)]
-      hover:border-blue-400/70 hover:bg-white/60 dark:hover:bg-white/20"
+      dark:bg-white/10 backdrop-blur-md overflow-hidden shadow-[0_0_10px_rgba(0,0,0,0.08)]"
     >
       {/* Cover image */}
       <div className="relative aspect-[3/4] w-full overflow-hidden rounded-t-2xl">

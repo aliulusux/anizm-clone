@@ -26,7 +26,8 @@ export default function AnimeGrid({ animeList = [] }) {
           <Link
             key={`${a.mal_id || a.id}-${i}`}
             href={href}
-            className="group block rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 transition overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
+            className="group block rounded-2xl bg-white/5 dark:bg-white/5 backdrop-blur-md border border-white/10 transition-all duration-500 hover:shadow-[0_0_25px_rgba(59,130,246,0.45)]
+            hover:border-blue-400/70 hover:bg-white/60 dark:hover:bg-white/20transition overflow-hidden shadow-[0_8px_30px_rgba(0,0,0,0.12)]"
           >
             <div className="relative w-full aspect-[2/3]">
               {/* 
