@@ -30,7 +30,8 @@ export default function AnimeGrid({ animeList = [] }) {
             hover:scale-[1.03] transition-all duration-300 hover:shadow-lg hover:shadow-orange-500/10
           "
         >
-          <div className="relative aspect-[3/4] w-full overflow-hidden">
+          {/* 🧩 Fix: give Image a guaranteed height */}
+          <div className="relative w-full" style={{ height: "250px" }}>
             <Image
               src={
                 anime.images?.jpg?.large_image_url ||
@@ -40,10 +41,7 @@ export default function AnimeGrid({ animeList = [] }) {
               alt={anime.title}
               fill
               sizes="(max-width: 768px) 50vw, (max-width: 1200px) 25vw, 20vw"
-              className="
-                object-cover transition-transform duration-500
-                group-hover:scale-110
-              "
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
               priority={false}
             />
           </div>
